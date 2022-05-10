@@ -25,4 +25,5 @@ urlpatterns = [
     path('poll/', include('chat_polling.urls')),
     path('websocket/', include('chat_websocket.urls')),
     # path(r'^favicon.ico$', RedirectView.as_view(url=r'static/favicon.ico')),
+    path('try_pyscript/', include('try_pyscript.urls')),
 ]

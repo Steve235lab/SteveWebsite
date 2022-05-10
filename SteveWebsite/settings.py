@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
     'chat_websocket.apps.ChatWebsocketConfig',
     'channels',
+    'try_pyscript.apps.TryPyscriptConfig',
 ]
 
 MIDDLEWARE = [

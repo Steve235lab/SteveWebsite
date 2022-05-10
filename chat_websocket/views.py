@@ -16,8 +16,8 @@ def email_confirm(request):
 
 
 def chat_room(request):
-    # http://42.192.44.52/websocket/chat_room/?username=Steve
+    # http://42.192.44.52/websocket/chatroom/?username=Steve
     username = request.GET.get('username')
-    return render(request, 'chat_room.htm', {"group_num": username})
+    return render(request, 'chat_room.htm', {"username": username})
 
 
