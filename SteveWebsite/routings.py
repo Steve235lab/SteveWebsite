@@ -7,7 +7,7 @@ from chat_websocket import consumers
 
 websocket_urlpatterns = [
     # re_path(r'ws/(?P<group>\w+)/$', consumers.ChatConsumer.as_asgi()),
-    re_path(r'ws/(?P<username>\w+)/$', consumers.ChatConsumer.as_asgi()),
+    re_path(r'ws_chat_room/(?P<username>\w+)/$', consumers.ChatConsumer.as_asgi()),
     re_path(r'ws_sign_up/', consumers.SignUpConsumer.as_asgi()),
     re_path(r'ws_sign_in/', consumers.SignInConsumer.as_asgi()),
     re_path(r'ws_cfm_eml/(?P<username>\w+)/$', consumers.CfmEmlConsumer.as_asgi()),

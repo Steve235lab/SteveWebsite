@@ -6,5 +6,5 @@ urlpatterns = [
     path('sign_up/', views.sign_up),
     path('email_confirm/', views.email_confirm),
     path('sign_in/', views.sign_in),
-    path('chat_room/', views.websocket),
+    path('chat_room/', views.chat_room),
 ]
