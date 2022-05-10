@@ -1,0 +1,46 @@
+课程地址：https://www.bilibili.com/video/BV1KJ41117HL?p=6&spm_id_from=pageDriver
+
+1. 创建conda虚拟环境
+conda create -n your_env_name python=x.x
+其中python=x.x可以忽略
+
+2. 激活虚拟环境
+使用cmd：conda activate your_env_name
+使用PowerShell：activate your_env_name
+
+3. 在虚拟环境下安装Django（已经激活虚拟环境的情况下）
+conda install Django
+
+4. 创建Django项目
+	(1) 使用cd命令将路径切换至虚拟环境目录
+	(2) django-admin startproject project_name	   注意：不要使用与虚拟环境相同的项目名称，否则会报错！！！
+
+5. 使用Spyder打开Django项目
+	(1) 使用cd命令将路径切换至项目目录
+	(2) spyder -p "."       （这里有可能报错“link image0 hasn't been detected!”）
+
+6. 运行Django项目
+	(1) 使用cd命令将路径切换至项目目录
+	(2) python manage.py runserver
+	(3) 复制返回的地址到浏览器，即可查看网站
+
+7. 在控制台ctrl-c会结束网站后台进程
+
+8. 创建app（详见课程p6）
+	(1) 在项目目录下 python manage.py startapp app_name
+	(2) 项目主模块下的settings.py里的INSTALLED_APPS里添加'app_name'
+	(3) 修改项目主模块下的urls.py，如下所示
+		from django.contrib import admin
+		from django.urls import path, include
+
+		urlpatterns = [
+   			 path('admin/', admin.site.urls),
+    			 path('', include('app_test.urls')),
+		]
+	(4) 到新app文件下新建urls.py，并复制粘贴主模块下的urls.py内容
+
+9. 修改显示页面
+	(1) 关联及跳转，例子详见app_test下的urls.py和views.py
+	(2) 创建html文件
+
+10. 使用前端开发框架Bootstrap：https://v4.bootcss.com/

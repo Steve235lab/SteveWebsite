@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="/static/favicon.ico">
+        <title>Polling Chat Room</title>
+        <h2>Polling Chat Room</h2>
+        <h5>Version 0.8</h5>
+        <h5>Copyright (C) 2022 Steve D. J.. All rights reserved.</h5>
+        <style>
+            .message{
+                height: 500px;
+                border: 1px solid #dddddd;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="message" id="message"></div>
+        <div>
+            <input type="text" placeholder="请输入" id="txt">
+            <input type="button" value="发送" onclick="sendMessage();">
+        </div>
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script>
+            // 将消息发送到后台
+            function sendMessage() {
+                var text = $("#txt").val();
+
+                $.ajax({
+                    url:'/poll/send/msg/',
+                    type: 'GET',
+                    data:{
+                        text: text
+                    },
+                    success: function (res) {
+                        console.log("请求发送成功", res);
+                    }
+                })
+            }
+
+            max_index = 0;
+            // 每隔2s向后台发送请求获取数据并展示在界面上
+            setInterval(function (){
+                // 发送请求获取数据
+                $.ajax({
+                    url: '/poll/get/msg/',
+                    data: {
+                        index: max_index
+                    },
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (dataDict) {
+                        max_index = dataDict.max_index;
+
+                        $.each(dataDict.data, function (index, item) {
+                            console.log(index, item);
+                            // 将内容拼接成div标签，并添加至message区域
+                            var tag = $("<div>");
+                            tag.text(item)
+                            $("#message").append(tag);
+                        })
+                    }
+                })
+            }, 2000)
+        </script>
+    </body>
+</html>

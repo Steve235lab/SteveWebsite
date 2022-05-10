@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="/static/favicon.ico">
+        <title></title>
+        <style type="text/css">
+            form
+            {
+                width:100%;
+                height:100%;
+                margin-top: 100px;
+				margin-bottom: 100px;
+                background:#008B8B;
+            }
+            div
+            {
+                display:inline-block;
+                padding-top: 255px;
+                padding-bottom: 255px;
+				padding-left: 1px;
+				padding-right: 1px;
+            }
+            h2
+            {
+                font-family: "微软雅黑";
+            font-size: 40px;
+                color:black;
+            }
+            #log
+            {
+                color:blue;
+            }
+        </style>
+    </head>
+    <body>
+        <form>
+		    <center>
+            <div>
+            <h2>
+            注册
+			</h2>
+			<p>
+				用户名：<input type="text" id="name"/>
+			</p>
+			<p>
+				密&emsp;码：<input type="text" id="password"/>
+			</p>
+			<p>
+				邮  箱：<input type="text" id="email"/>
+			</p>
+			<p>
+				<input type="button" value="立即注册" onclick="sendMessage();"/>
+			</p>
+			<p>
+				已有账号？<a href="../sign_in/">请登录</a>
+			</p>
+            </div>
+            </center>
+        </form>
+    </body>
+<script type="text/javascript" src="/static/md5.js"></script>
+<script>
+document.onkeydown = function(e){
+        if(!e) e = window.event;
+        if((e.keyCode || e.which) == 13){
+            sendMessage()
+        }
+    }
+
+    var username = '';
+
+    // 发送websocket连接请求
+    socket = new WebSocket("ws://42.192.44.52:8000/ws_sign_up/"); // 使用服务器的公网IP
+
+    // 后端主动断开连接时触发
+    socket.onclose = function (event) {
+        alert("已断开与服务器的WebSocket会话")
+    }
+
+    // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
+    socket.onmessage = function (event) {
+        switch(event.data){
+        case 'invalid username':
+            document.getElementById('name').style.color=!this.c?this.c='red':this.c='';
+            alert('invalid username')
+            break;
+        case 'username occupied':
+            document.getElementById('name').style.color=!this.c?this.c='red':this.c='';
+            alert('username occupied')
+            break;
+        case 'invalid email':
+            document.getElementById('email').style.color=!this.c?this.c='red':this.c='';
+            alert('invalid email')
+            break;
+        case 'OK':
+            location = 'http://42.192.44.52:8000/websocket/email_confirm/?username=' + username;
+            break;
+        default :
+            alert('其他情况');
+        }
+        //TODO: 添加响应后台发送验证已占用用户名和验证邮箱地址有效性消息的功能
+        //TODO: 如果用户名和邮箱均合法则跳转至 url:http://42.192.44.52/websocket/email_confirm/?username=xxx/
+    }
+
+    // 点击按钮发送消息
+    function sendMessage() {
+        let message1 = document.getElementById("name");
+        username = message1.value;
+        let message2 = document.getElementById("password");
+        let message3 = document.getElementById("email");
+        let hashed_password = hex_md5(message2.value)
+        let separator = '/';
+        let message = message1.value + separator + hashed_password + separator + message3.value;
+        socket.send(message);
+    }
+
+    // 客户端主动断开websocket连接
+    function shutWSDown() {
+        // 暂时用不到，该websocket会话通过后台关闭
+    }
+</script>
+
+</html>
