@@ -9,7 +9,6 @@ import time
 # group_list: list of Group objects
 class Database:
     user_list = []
-    group_list = []
 
     # 读取数据文件初始化
     def __init__(self):
@@ -58,8 +57,7 @@ class User:
         self.username = kwargs['username']
         self.password = kwargs['password']
         self.avatar = kwargs['avatar']
-        self.friends = kwargs['friends']  # 好友列表
-        self.groups = kwargs['groups']  # 群组列表
+        self.contacts = kwargs['contacts']  # 联系人列表，每个元素为一个Group对象
         self.invitations = kwargs['invitations']  # 邀请列表
         self.email = kwargs['email']
         self.confirmed = kwargs['confirmed']    # 邮箱验证通过标记

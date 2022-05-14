@@ -20,25 +20,28 @@ class ExcelDatabase:
                 break
             password = data.iloc[i, 1]
             avatar = data.iloc[i, 2]
-            friends_str = data.iloc[i, 3]
-            groups_str = data.iloc[i, 4]
-            invitations_str = data.iloc[i, 5]
-            email = data.iloc[i, 6]
-            confirmed = data.iloc[i, 7]
-            confirm_code = data.iloc[i, 8]
+            invitations_str = data.iloc[i, 3]
+            email = data.iloc[i, 4]
+            confirmed = data.iloc[i, 5]
+            confirm_code = data.iloc[i, 6]
+            contacts_str = data.iloc[i, 7]
             # 分割为list对象
-            friends = friends_str.split('/')
-            groups = groups_str.split('/')
             invitations = invitations_str.split('/')
+            contacts_temp = contacts_str.split('/')
             # 空列表判断
-            if friends[0] == 'None':
-                friends = []
-            if groups[0] == 'None':
-                groups = []
             if invitations[0] == 'None':
                 invitations = []
+            contacts = []
+            if contacts_temp[0] != 'None':
+                # 构造Group对象添加至contacts列表中
+                for i in range(len(contacts_temp)):
+                    cache = contacts_temp[i].split(',')
+                    group_num = cache[0]
+                    group_name = cache[1]
+                    contact = Group(group_num=group_num, group_name=group_name)
+                    contacts.append(contact)
             # 构造User对象
-            user = User(username=username, password=password, avatar=avatar, friends=friends, groups=groups,
+            user = User(username=username, password=password, avatar=avatar, contacts=contacts,
                         invitations=invitations, email=email, confirmed=confirmed, confirm_code=confirm_code)
             # 将User对象放入user_list
             self.user_list.append(user)
@@ -117,6 +120,8 @@ class ExcelDatabase:
         for i in range(len(self.user_list)):
             if username == self.user_list[i].username:
                 return i
+        # 没找到返回-1
+        return -1
 
 
 class User:
@@ -124,12 +129,11 @@ class User:
         self.username = kwargs['username']
         self.password = kwargs['password']
         self.avatar = kwargs['avatar']
-        self.friends = kwargs['friends']  # 好友列表
-        self.groups = kwargs['groups']  # 群组列表
         self.invitations = kwargs['invitations']  # 邀请列表
         self.email = kwargs['email']
         self.confirmed = kwargs['confirmed']    # 邮箱验证通过标记
         self.confirm_code = kwargs['confirm_code']  # 发给用户的邮箱验证码
+        self.contacts = kwargs['contacts']      # 每一个成员都是一个Group对象
 
 
 # 邀请
@@ -149,8 +153,9 @@ class Group:
     # group_num: int
     # group_name: str
     # chat_history应该读取数据文件进行初始化
-    def __init__(self, members, group_num, group_name):
-        self.members = members
+    def __init__(self, group_num, group_name):
+        # TODO: members成员应该通过读取数据文件初始化
+        self.members = []
         self.group_num = group_num
         self.group_name = group_name
         self.chat_history = ChatHistory(self.group_num)
@@ -181,6 +186,7 @@ class ChatHistory:
     # history: list of HistoryMeta objects
     def __init__(self, group_num):
         self.group_num = group_num
+        # TODO: 添加读取数据文件初始化聊天记录的功能
         self.history = []
 
     # 向聊天记录中添加一条新消息

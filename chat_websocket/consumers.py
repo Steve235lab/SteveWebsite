@@ -28,22 +28,26 @@ class ChatConsumer(WebsocketConsumer):
     # 向前端发送联系人列表（实际上是以/分割的字符串）
     def send_contacts(self, username):
         user_index = DATABASE.get_user_index(username)
-        friends = DATABASE.user_list[user_index].friends
-        groups = DATABASE.user_list[user_index].groups
-        if len(friends) != 0:
-            friends_str = friends[0]
-            for friend in friends[1:]:
-                friends_str += '/' + friend
+        if user_index != -1:
+            contacts = DATABASE.user_list[user_index].contacts
         else:
-            friends_str = 'None'
-        if len(groups) != 0:
-            groups_str = groups[0]
-            for group in groups[1:]:
-                groups_str += '/' + group
+            contacts = []
+        if len(contacts) == 0:
+            contacts_str = 'None'
         else:
-            groups_str = 'None'
-        contacts_str = friends_str + '/' + groups_str
-        self.send("connects=" + contacts_str)
+            contacts_str = ''
+            for contact in contacts:
+                group_num = contact.group_num
+                group_name = contact.group_name
+                index = group_name.find('、')
+                if index != -1:
+                    members = group_name.split('、')
+                    for member in members:
+                        if member != username:
+                            group_name = member
+                contacts_str += str(group_num) + ',' + group_name + '/'
+            contacts_str += 'None'
+        self.send("contacts=" + contacts_str)
 
     def websocket_receive(self, message):
         # 浏览器基于websocket向后端发送数据，自动触发接收消息，并进行回复
@@ -95,7 +99,7 @@ class SignUpConsumer(WebsocketConsumer):
                 print("用户邮箱" + email + "已通过检查")
                 self.send("OK")
                 # 构造新用户对象
-                user = User(username=username, password=password, avatar='../static/avatars/Judy.JPG', friends=[], groups=[],
+                user = User(username=username, password=password, avatar='../static/avatars/Judy.JPG', contacts=[],
                             invitations=[], email=email, confirmed='no', confirm_code='None')
                 # 将新用户保存到数据库
                 DATABASE.add_user(user)

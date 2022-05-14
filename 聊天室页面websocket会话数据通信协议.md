@@ -8,10 +8,13 @@ Written on 2022/5/10 by Steve D. J.
    (1) 后端在websocket_connect()中获取链接中的username，并以"username=xxx"的格式发送至前端。
         消息样例：username=Steve
    (2) 使用username在数据库中查找对应用户的联系人列表（好友列表和群组列表），将联系人列表拼接成字符串后发送至前端。
-       具体拼接方式为：group_num1,group_name1/group_num2,group_name2/...
+       具体拼接方式为：group_num1,group_name1/group_num2,group_name2/.../None
        当联系人列表为空时，会发送None，参考消息样例第二条。
-       消息样例：contacts=001,野兽先辈/002,网络程序设计项目组
+       消息样例：contacts=001,野兽先辈、Steve/002,网络程序设计项目组/None
                 contacts=None
+       注意，双人私聊的群组命名为中文顿号"、"分隔的用户双方用户名，例如“野兽先辈、Steve”，前端显示时可以根据当前登录的用户名来选择显示，例如：
+            当前登录用户为：Steve，则私聊群组"001,野兽先辈、Steve"在前端应显示为"野兽先辈"。
+       对于2人以上群聊，创建时要求使用自定义群组名称，不可包含特殊符号（特别是不含"、"），不同群组之间允许重名。
     (3) 进入聊天室页面，自动选中contacts列表中的第一个作为“当前聊天对象”。
         无需后端发送额外消息，前端接收到contacts完成界面初始化后默认选中contacts列表中的第一个作为“当前聊天对象”。
         后端默认选中contacts列表中的第一个作为“当前聊天对象”，并向前端发送"当前聊天对象"的chat_history。
