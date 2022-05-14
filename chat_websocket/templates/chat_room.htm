@@ -43,6 +43,7 @@
     <div class="layout">
         <aside class="aside" id="contacts">
             <p>联系人列表</p>
+            <div id="content"></div>
         </aside>
         <div class="message" id="message"></div>
         <div class="input_bar">
@@ -55,6 +56,7 @@
     // 发送websocket连接请求
     socket = new WebSocket("ws://42.192.44.52:8000/ws_chat_room/{{ username }}/"); // 使用服务器的公网IP
 
+
     // 握手完成后自动触发
     socket.onopen = function (event) {
         // 暂时用不到
@@ -62,6 +64,32 @@
 
     // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
     socket.onmessage = function (event) {
+        var receive = event.data;
+        var name = [];
+        var i = 0;
+        var iname = 1;
+        //停止循环判断
+        if(receive.substr(1,1)=='o'){
+        //列表
+        while(receive.substr(i,4)!='None'){
+            i += 1;
+            if(receive.substr(i-1,1)== iname){
+                i += 1;
+                var temp = [];
+                while(receive.substr(i,1) !='/'){
+                temp += receive.substr(i,1);
+                i += 1;
+                };
+                //创建按钮
+                document.getElementById("content").innerHTML +=
+                    "</br><input name=\"按钮\" type=\"button\" onClick=\"create("+iname+")\" value="+temp+"><\/input>";
+                iname += 1;
+            };
+        }
+        }
+        if(receive.substr(1,1)!='o'){
+        alert('历史信息')
+        }
         // 将后端消息显示在日志中
         console.log(event.data);
         // 将后端消息显示在聊天框中
@@ -81,10 +109,7 @@
     // 点击按钮发送消息
     function sendMessage() {
         let message = document.getElementById("txt");
-<!--        alert(message.value)-->
-        var hash=hex_md5(message.value);
-        socket.send(hash);
-<!--        alert(hash);-->
+        socket.send(message);
         message.value=[];
     }
 
@@ -95,5 +120,12 @@
         tag.innerText = "[已断开连接]";
         document.getElementById("message").appendChild(tag);
     }
+
+    function create(iname) {
+        message = 'chatting_to=' + iname;
+        socket.send(message);
+        alert(message)
+    }
+
 </script>
 </html>
