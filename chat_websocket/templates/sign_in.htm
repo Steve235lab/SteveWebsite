@@ -5,17 +5,31 @@
         <link rel="shortcut icon" href="/static/favicon.ico">
         <title></title>
         <style type="text/css">
+            a
+            {
+                text-decoration: none;
+                color: aquamarine;
+
+            }
+
+            a:hover
+            {
+                text-decoration: underline;
+                text-decoration-color: #869d8e;
+            }
             form
             {
                 width:100%;
                 height:100%;
                 margin-top: 100px;
 				margin-bottom: 100px;
-                background:#008B8B;
+                background:#0a7272;
+
             }
             div
             {
                 display:inline-block;
+                margin-top:20px ;
                 padding-top: 255px;
                 padding-bottom: 255px;
 				padding-left: 1px;
@@ -23,37 +37,63 @@
             }
             h2
             {
-                font-family: "微软雅黑";
-            font-size: 40px;
+                font-family: "Arial,sans-serif";
+                font-size: 40px;
                 color:black;
             }
             #log
             {
                 color:blue;
             }
+            .inputA
+            {
+               background: rgb(188, 187, 187);
+                border-bottom-left-radius: 8px;
+                border-bottom-right-radius: 8px;
+                border-top-right-radius: 8px;
+                border-top-left-radius: 8px;
+                border-style: none;
+
+            }
+            .noid
+            { color: #242727;
+              text-decoration: none;
+            }
+
+            .inputB
+            {
+                background: rgb(188, 187, 187);
+                border-bottom-left-radius: 4px;
+                border-bottom-right-radius: 4px;
+                border-top-right-radius: 4px;
+                border-top-left-radius: 4px;
+                border-style: none;
+                background-image: url("/static/images/ButtonColor.png");
+                box-shadow: 5px 5px 5px #3d3b3b;
+            }
         </style>
     </head>
-    <body>
+    <body style="background-color:#0a7272;">
 		<!--div class="div">
-			<img src="favicon.png" width="100%" height="200px" alt=""  id="picture">
+			<img src="favicon.png" width="100%" height="100px" alt=""  id="picture">
 		</div-->
         <form name="login">
             <center>
             <div>
-            <h2>
+            <h2 style="color:rgb(29, 29, 29);font-size: 36px; padding-left: 45px;">
                 登录
             </h2>
-            <p>
-                用户名：<input type="text" id="name"/>
+            <p  style="margin-top:20px ;">
+                用户名：<input class="inputA" type="text" id="name"/>
             </p>
-            <p>
-                密&emsp;码：<input type="text" id="password"/>
+            <p >
+                密&emsp;码：<input class="inputA" style="border: radius 10px 0 0 10px ;" type="text" id="password"/>
             </p>
-            <p>
-                <input type="button" value="立即登录" onclick="sendMessage();" />
+            <p style="margin-bottom:100px ;" >
+                <input class="inputB" type="button" style=" border: radius 2px 0 0 2px ; margin-left: 50px;" value="立即登录" onclick="sendMessage();" />
             </p>
-			<p>
-				没有账号？<a href="../sign_up/">请注册</a>
+			<p class="noid">
+				没有账号？<a href="../sign_up/" >请注册</a>
 			</p>
             </div>
             </center>

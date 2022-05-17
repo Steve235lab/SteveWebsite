@@ -11,28 +11,143 @@
         }
         .message {
             flex: 1;
-            height: 80vh;
+            height: 75vh;
             overflow-y: auto;
-            background-color: rgba(28, 138, 224, 0.41);
+            background-color: rgba(204, 209, 212, 0.41);
+            padding-top: 20px;
+            float: left;
+        }
+        .words{
+            height: 40px;
+            display: inline-block;
+            }
+        .words span {
+
+            margin-left:20px;
+            background-color: rgb(7, 148, 176);
+            border-radius: 40px;
+           color:rgb(229, 225, 225) ;
+            line-height: 30px;
+            padding-top: 1px;
+            padding-bottom: 1px;
+            padding-left: 8px;
+            padding-right: 8px;
+            display: block;
+            float: right;
+
+
+        }
+        .words img{
+            margin-left: 0px;
+            margin-left: 10px;
+            margin-top: 0px;
+            display: block;
+            float: left;
+            width:40px;
+            height:40px;
+            float: left;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            border-top-right-radius: 40px;
+            border-top-left-radius: 40px;
+
         }
         .aside {
             width: 30%;
-            height: 80vh;
+            height: 75vh;
             overflow-y: auto;
             background-color: rgba(127, 134, 138, 0.41);
             text-align: center;
+            padding-top: 20px;
         }
         .layout {
             width: 100%;
             height: 80vh;
             display: flex;
         }
+        .c-list{
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            height: 80vh;
+
+        }
+
         .input_bar {
             position: fixed;
             right: 5vw;
-            bottom: 5%;
+            bottom:20px;
+        }
+        li{
+            width: 100%;
+            list-style: none;
+            display:block;
+            float:left;
+
+        }
+        img{
+            margin-left: 60px;
+            margin-top: 40px;
+            width:80px;
+            height:80px;
+            float: left;
+            border-bottom-left-radius: 80px;
+            border-bottom-right-radius: 80px;
+            border-top-right-radius: 80px;
+            border-top-left-radius: 80px;
+        }
+
+        .info{
+            width: 90%;
+            padding-top: 60px;
+            }
+        .info span{
+            width: 400px;
+            margin-top:50px;
+            text-align:left;
+
         }
         #txt {width: 55vw}
+        .word_wrap{
+            width: 100%;
+            margin-top: 20px;
+            height: auto;
+        }
+        .me-words{
+        height: 40px;
+        display: inline-block;
+        }
+        .me-words span {
+
+            margin-left:20px;
+            background-color: rgb(7, 148, 176);
+            border-radius: 40px;
+           color:rgb(229, 225, 225) ;
+            line-height: 30px;
+            padding-top: 1px;
+            padding-bottom: 1px;
+            padding-left: 8px;
+            padding-right: 8px;
+            display: block;
+            float: left;
+
+
+        }
+        .me-words img{
+            margin-left: 0px;
+            margin-left: 10px;
+            margin-top: 0px;
+            display: block;
+            float: left;
+            width:40px;
+            height:40px;
+            float: right;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            border-top-right-radius: 40px;
+            border-top-left-radius: 40px;
+
+        }
     </style>
 </head>
 <body>
@@ -40,21 +155,32 @@
         <h2>WebSocket Chat Room</h2>
         <h5>Version 0.9</h5>
     </div>
-    <div class="layout">
+    <div class="layout" >
         <aside class="aside" id="contacts">
-            <p>联系人列表</p>
-            <div id="content"></div>
+            <h1>联系人列表</h1>
+                <ul id="contacts_list">
+                </ul>
+
+
         </aside>
-        <div class="message" id="message"></div>
-        <div class="input_bar">
-            <input type="text" placeholder="请输入" id="txt">
-            <input type="button" value="发送" onclick="sendMessage();">
+    <div class="message" id="message">
+        <div class="word_wrap">
+            <div class="words">
+
+                <img src="/static/avatars/A4.png">
+                <span>借助opencv提取原始图像的RGB分量数值，然后对数值进行增减，再将调整后的图像保存为jpg格式文件，即可批量将图片色调调整至：暖色调、冷色调、白平衡三种类型。这样相当于将数据集规模成倍扩展。</span>
+
+            </div>
         </div>
+    </div>
+    <div class="input_bar">
+        <input type="text" placeholder="请输入" id="txt">
+        <input type="button" value="发送" onclick="sendMessage();">
     </div>
 </body>
 <script>
     // 发送websocket连接请求
-    socket = new WebSocket("ws://42.192.44.52:8000/ws_chat_room/{{ username }}/"); // 使用服务器的公网IP
+    socket = new WebSocket("ws://42.192.44.52:8000/ws_chat_room/Steve/"); // 使用服务器的公网IP
 
 
     // 握手完成后自动触发
@@ -80,9 +206,35 @@
                 temp += receive.substr(i,1);
                 i += 1;
                 };
-                //创建按钮
-                document.getElementById("content").innerHTML +=
-                    "</br><input name=\"按钮\" type=\"button\" onClick=\"create("+iname+")\" value="+temp+"><\/input>";
+                //创建联系人<li>
+                {#document.getElementById("contact_list").innerHTML +=#}
+                {#    "</br><input name=\"按钮\" type=\"button\" onClick=\"create("+iname+")\" value="+temp+"><\/input>";#}
+                {#    '<li><div class="c-photo"><img aspect-ratio: auto 40 / 40; id="target" src="/static/avatars/A1.png" alt="avatar" width="120px" height="120px"> </div> <div class="info" ><span>CASUS凯撒行 </span><br> <span>@josephwung.7小时</span></div> </li>';#}
+                let contact_li = document.createElement("li");
+                contact_li.id = '0';  // 设定唯一标识
+                let c_photo_div = document.createElement("div");
+                c_photo_div.className = "c-photo";
+                let c_img = document.createElement("img");
+                c_img.src = "/static/avatars/Judy.JPG";     // 取用户头像路径放在这里
+                c_img.alt = "avatar";
+                c_img.width = 120;
+                c_img.height = 120;
+                c_photo_div.appendChild(c_img);
+                let c_info_div = document.createElement("div");
+                c_info_div.className = "info";
+                let username_span = document.createElement("span");
+                username_span.innerText = '用户名';    // 取用户名放在这里
+                c_info_div.appendChild(username_span);
+                let c_info_br = document.createElement("br");
+                c_info_div.appendChild(c_info_br);
+                let last_msg_span = document.createElement("span");
+                last_msg_span.innerText = '用户发的最后一条消息';
+                c_info_div.appendChild(last_msg_span);
+                contact_li.appendChild(c_photo_div);
+                contact_li.appendChild(c_info_div);
+                // contact_li.onclick = "create("+iname+")"     设定响应函数
+                document.getElementById("contacts").appendChild(contact_li);
+
                 iname += 1;
             };
         }
@@ -93,9 +245,18 @@
         // 将后端消息显示在日志中
         console.log(event.data);
         // 将后端消息显示在聊天框中
-        let tag = document.createElement("div");
+        let words_wrap = document.createElement("div");
+        words_wrap.className = "word_wrap";
+        let words = document.createElement("div");
+        words.className = "words";
+        let avatar_inline = document.createElement("img");
+        avatar_inline.src = "/static/avatars/Judy.JPG";       // 用户头像路径
+        let tag = document.createElement("span");
         tag.innerText = event.data;
-        document.getElementById("message").appendChild(tag);
+        words.appendChild(avatar_inline);
+        words.appendChild(tag);
+        words_wrap.appendChild(words);
+        document.getElementById("message").appendChild(words_wrap);
     }
 
     // 回车发送消息
