@@ -47,7 +47,7 @@ class Database:
     # 通过group_num查找聊天群组对象
     # group_num: int
     # return Group Object
-    def get_group_with_group_num(self):
+    def get_group_with_group_num(self, group_num):
         pass
 
 
