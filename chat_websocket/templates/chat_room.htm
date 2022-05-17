@@ -252,7 +252,7 @@
         let avatar_inline = document.createElement("img");
         avatar_inline.src = "/static/avatars/Judy.JPG";       // 用户头像路径
         let tag = document.createElement("span");
-        tag.innerText = event.data;
+        tag.innerText = event.data;     // 历史消息
         words.appendChild(avatar_inline);
         words.appendChild(tag);
         words_wrap.appendChild(words);
