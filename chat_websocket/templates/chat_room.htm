@@ -207,9 +207,6 @@
                 i += 1;
                 };
                 //创建联系人<li>
-                {#document.getElementById("contact_list").innerHTML +=#}
-                {#    "</br><input name=\"按钮\" type=\"button\" onClick=\"create("+iname+")\" value="+temp+"><\/input>";#}
-                {#    '<li><div class="c-photo"><img aspect-ratio: auto 40 / 40; id="target" src="/static/avatars/A1.png" alt="avatar" width="120px" height="120px"> </div> <div class="info" ><span>CASUS凯撒行 </span><br> <span>@josephwung.7小时</span></div> </li>';#}
                 let contact_li = document.createElement("li");
                 contact_li.id = '0';  // 设定唯一标识
                 let c_photo_div = document.createElement("div");
