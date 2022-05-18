@@ -1,54 +1,123 @@
 # database.py
 # Project Database
 # Written by Steve D. J. on 2022/5/10
-
 import time
 
+from pymysql import connect
 
 # user_list: liat of User objects
 # group_list: list of Group objects
 class Database:
     user_list = []
+    group_list = []
+    history_list = []
 
     # 读取数据文件初始化
     def __init__(self):
-        pass
+        self.conn = connect(host='localhost',port=3306,user='root',password='root',database='chatroom',charset='utf8')
+        self.cursor = self.conn.cursor()
+
+    def __del__(self):
+        self.cursor.close()
+        self.conn.close()
 
     # 将对象写入数据文件
-    def save(self):
-        pass
+    def save_user(self):
+        for user in self.user_list:
+            username = user.username
+            password = user.password
+            avatar = user.avatar
+            contacts = user.contacts
+            email = user.email
+            confirmed = user.confirmed
+            confirm_code = user.confirm_code
+            sql = """insert into userchat values (0,"%s","%s","%s","%s","%s","%s","%s",0)""" % (username,password,avatar,email,
+                                                                                              confirmed,confirm_code,contacts)
+            self.cursor.execute(sql)
+            self.conn.commit()
+
+    # 写入group
+    def save_group(self):
+        for group in self.group_list:
+            members = group.members
+            group_num = group.group_num
+            group_name = group.group_name
+            sql = """insert into contacts_chat values (0,"%s","%s","%s",0)""" % (members,group_num,group_name)
+            self.cursor.execute(sql)
+            self.conn.commit()
+
+    #写入history
+    def save_history(self):
+        for history in self.history_list:
+            group_num = history.group_num
+            time = history.timestamp
+            sender = history.sender
+            content = history.content
+            sql = """insert into chat_history values (0,"%s","%s","%s","%s")""" %(group_num,time,sender,content)
+            self.cursor.execute(sql)
+            self.conn.commit()
 
     # 添加新用户
     # new_user: User Object
     def add_user(self, new_user):
-        pass
+        self.user_list.append(new_user)
+        self.save_user()
 
     # 移除用户
     # username: str
+    # 逻辑删除
     def remove_user(self, username):
-        pass
+        sql = """update userchat set is_delete=1 where username = ("%s")""" %username
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     # 通过username查找用户对象
     # username: str
     # return User Object
-    def get_user_with_username(self, username):
-        pass
+    def get_user_with_username(self,username):
+        sql = """select * from userchat where username = ("%s")""" % username
+        self.cursor.execute(sql)
+        temp = self.cursor.fetchone()
+        print(temp)
+        return temp
 
     # 添加新的聊天群组
     # new_group: Group Object
     def add_group(self, new_group):
-        pass
+        self.group_list.append(new_group)
+        self.save_group()
 
     # 移除聊天群组
     # group_num: int
     def remove_group(self, group_num):
-        pass
+        sql = """update contacts_chat set is_delete=1 where group_num = ("%d")""" % group_num
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     # 通过group_num查找聊天群组对象
     # group_num: int
     # return Group Object
     def get_group_with_group_num(self, group_num):
-        pass
+        sql = """select * from contacts_chat where group_num = ("%s")""" % group_num
+        self.cursor.execute(sql)
+        temp = self.cursor.fetchone()
+        print(temp)
+        return temp
+
+
+    #添加新的历史记录
+    #new_history:HistoryMeta Object
+    def add_history(self,new_history):
+        self.history_list.append(new_history)
+        self.save_history()
+
+    #通过group_num查找历史记录
+    def get_history_with_group_num(self,group_num):
+        sql = """select * from chat_history where group_num = ("%s")""" % group_num
+        self.cursor.execute(sql)
+        temp = self.cursor.fetchone()
+        print(temp)
+        return temp
 
 
 # 用户
@@ -127,7 +196,8 @@ class HistoryMeta:
     # 构造函数
     # sender: 发信人用户名 str
     # content: 消息原文 str
-    def __init__(self, sender, content):
+    def __init__(self, group_num,sender, content):
+        self.group_num = group_num
         self.timestamp = int(time.mktime(time.localtime(time.time())))
         self.sender = sender
         self.content = content
