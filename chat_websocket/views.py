@@ -53,5 +53,8 @@ def update_info(request):
         avatar = DATABASE.get_user_with_username(username).avatar.split('/')[-1]
         return render(request, 'update_info.htm', {"username": username, 'email': email, 'avatar': avatar})
 
-    def add_contact(message):
-        pass
+
+def add_contact(request):
+    username = request.GET.get('username')
+    return render(request, 'add_contact.htm', {"username": username})
+

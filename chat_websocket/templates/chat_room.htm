@@ -17,13 +17,15 @@
 
         }
         .title_button li {
-            width: 150px;
+            width: 100px;
             height: auto;
             margin-right: 20px;
             float: right;
         }
         .title_button li img{
             filter:opacity(60%);
+            width: 50px;
+            height: 50px;
         }
         .message {
             flex: 1;
@@ -173,7 +175,7 @@
     </div>
     <div class="title_button">
         <li><a href="../update_info/?username={{ username }}"><img src="/static/images/update_info.png"></a></li>
-        <li><a href=""><img src="/static/images/add_contact.png"></a></li>
+        <li><a href="../add_contact/?username={{ username }}"><img src="/static/images/add_contact.png"></a></li>
     </div>
     <div class="layout" >
         <aside class="aside" id="contacts">
