@@ -160,19 +160,22 @@
             <h1>联系人列表</h1>
                 <ul id="contacts_list">
                 </ul>
+
+
         </aside>
-        <div class="message" id="message">
-            <div class="word_wrap">
-                <div class="words">
+    <div class="message" id="message">
+        <div class="word_wrap">
+            <div class="words">
+
                 <img src="/static/avatars/A4.png">
-                <span>色调</span>
-                </div>
+                <span>借助opencv提取原始图像的RGB分量数值，然后对数值进行增减，再将调整后的图像保存为jpg格式文件，即可批量将图片色调调整至：暖色调、冷色调、白平衡三种类型。这样相当于将数据集规模成倍扩展。</span>
+
             </div>
         </div>
-        <div class="input_bar">
+    </div>
+    <div class="input_bar">
         <input type="text" placeholder="请输入" id="txt">
         <input type="button" value="发送" onclick="sendMessage();">
-        </div>
     </div>
 </body>
 <script>
@@ -185,21 +188,18 @@
         // 暂时用不到
     }
 
-
     // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
     socket.onmessage = function (event) {
         var receive = event.data;
-<!--        alert(receive)-->
+        var name = [];
         var i = 0;
-        var iname = 0;
-        let elements = [];
-        var name = ['0'];
+        var iname = 1;
         //停止循环判断
         if(receive.substr(1,1)=='o'){
         //列表
-          while(receive.substr(i,4)!='None'){
+        while(receive.substr(i,4)!='None'){
             i += 1;
-            if(receive.substr(i-1,1)== iname+1){
+            if(receive.substr(i-1,1)== iname){
                 i += 1;
                 var temp = [];
                 while(receive.substr(i,1) !='/'){
@@ -207,11 +207,8 @@
                 i += 1;
                 };
                 //创建联系人<li>
-
                 let contact_li = document.createElement("li");
-                var id_str = 'li' + iname;
-                contact_li.id = id_str;  // 设定唯一标识
-
+                contact_li.id = '0';  // 设定唯一标识
                 let c_photo_div = document.createElement("div");
                 c_photo_div.className = "c-photo";
                 let c_img = document.createElement("img");
@@ -223,7 +220,7 @@
                 let c_info_div = document.createElement("div");
                 c_info_div.className = "info";
                 let username_span = document.createElement("span");
-                username_span.innerText = temp;    // 取用户名放在这里
+                username_span.innerText = '用户名';    // 取用户名放在这里
                 c_info_div.appendChild(username_span);
                 let c_info_br = document.createElement("br");
                 c_info_div.appendChild(c_info_br);
@@ -232,45 +229,15 @@
                 c_info_div.appendChild(last_msg_span);
                 contact_li.appendChild(c_photo_div);
                 contact_li.appendChild(c_info_div);
-                name.push(temp);
-
+                // contact_li.onclick = "create("+iname+")"     设定响应函数
                 document.getElementById("contacts").appendChild(contact_li);
+
                 iname += 1;
             };
-          }
-        };
-
-        let children = document.getElementById("contacts").children;
-        for(let child of children){
-            if (child.id.length>0 && child.id.length<5){
-                child.addEventListener("click", function(){
-                i = 0;
-                while (child.id != 'li' + i){
-                i += 1;
-                };
-                temp = name[i+1];
-                    message = 'chatting_to=' + temp;
-                    socket.send(message);
-                    alert(message);                                                                // 事件处理代码
-                });
-            }
         }
-
-<!--        let children = document.getElementById("contacts").children;-->
-<!--        for(let child of children){-->
-<!--            if (child.id.length>0 && child.id.length<5){-->
-<!--                child.addEventListener("click", function(){-->
-<!--                    alert(i);-->
-<!--                    message = 'chatting_to=' + name[i];-->
-<!--                    socket.send(message);-->
-<!--                    alert(message);                                                                // 事件处理代码-->
-<!--                });-->
-<!--            }-->
-<!--        }-->
-
-
+        }
         if(receive.substr(1,1)!='o'){
-<!--        alert('历史信息')-->
+        alert('历史信息')
         }
         // 将后端消息显示在日志中
         console.log(event.data);
@@ -312,12 +279,11 @@
         document.getElementById("message").appendChild(tag);
     }
 
-<!--    function create(temp) {-->
-<!--        message = 'chatting_to=' + temp;-->
-<!--        alert(message)-->
-<!--        socket.send(message);-->
-<!--        alert(message)-->
-<!--    }-->
+    function create(iname) {
+        message = 'chatting_to=' + iname;
+        socket.send(message);
+        alert(message)
+    }
 
 </script>
 </html>

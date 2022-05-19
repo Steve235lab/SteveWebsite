@@ -19,10 +19,10 @@ Written on 2022/5/10 by Steve D. J.
         无需后端发送额外消息，前端接收到contacts完成界面初始化后默认选中contacts列表中的第一个作为“当前聊天对象”。
         后端默认选中contacts列表中的第一个作为“当前聊天对象”，并向前端发送"当前聊天对象"的chat_history。
         chat_history数据格式：(暂定使用字符串，研究一下使用json对象的必要性以及可行性)
-            chat_history=timestamp,sender,content,avatar/.../...
+            chat_history=timestamp,sender,content,avatar/.../.../None
             即每条历史消息由时间戳timestamp + 发信者用户名sender + 消息内容content组成，三部分之间使用逗号分隔；消息与消息之间使用/分隔。
             如果消息中含有'/'，则服务器发送时使用该条消息的时间戳代替'/'。
-            消息样例：chat_history=1652119534,Steve,Hello world!,Judy.JPG/1652119569,野兽先辈,test 1652119569,Judy.JPG
+            消息样例：chat_history=1652119534,Steve,Hello world!,Judy.JPG/1652119569,野兽先辈,test 1652119569,Judy.JPG/None
 
 2. 会话建立后
     (1) 前端用户点击按钮选择“当前聊天对象”。

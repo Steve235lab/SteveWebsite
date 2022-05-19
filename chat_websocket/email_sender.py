@@ -6,7 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
 import numpy as np
-from .excel_database import DATABASE
+from .database import DATABASE
 
 
 class EmailSender:

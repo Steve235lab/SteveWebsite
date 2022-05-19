@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <title>Confirm e-mail address</title>
+    <h2>Confirm e-mail address</h2>
+</head>
+<body>
+    <h3>请检查邮箱获取验证码</h3>
+    <p>
+        验证码：<input type="text" id="confirm_code"/>
+    </p>
+    <p>
+        <input type="button" value="验证邮箱" onclick="sendMessage();"/>
+    </p>
+</body>
+<script>
+document.onkeydown = function(e){
+        if(!e) e = window.event;
+        if((e.keyCode || e.which) == 13){
+            sendMessage()
+        }
+    }
+
+    // 发送websocket连接请求
+    socket = new WebSocket("ws://42.192.44.52:8000/ws_cfm_eml/{{ username }}/"); // 使用服务器的公网IP
+
+     // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
+    socket.onmessage = function (event) {
+        switch(event.data){
+           case 'email confirmed':
+              alert('邮件验证成功，你现在可以关闭此页面');
+              break;
+           case 'wrong confirm code':
+              alert('验证码错误，请重新输入');
+              break;
+           default :
+              alert('其他结果')
+        }
+    }
+
+    // 后端主动断开连接时触发
+    socket.onclose = function (event) {
+        alert("已断开与服务器的WebSocket会话")
+    }
+
+    // 点击按钮发送消息
+    function sendMessage() {
+        let confirm_code = document.getElementById("confirm_code");
+        let message = confirm_code.value
+        socket.send(message);
+    }
+
+    // 客户端主动断开websocket连接
+    function shutWSDown() {
+        socket.close();
+    }
+</script>
+</html>

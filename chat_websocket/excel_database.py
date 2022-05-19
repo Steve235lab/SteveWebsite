@@ -220,4 +220,4 @@ class HistoryMeta:
 
 
 # 创建全局对象
-DATABASE = ExcelDatabase()
+# DATABASE = ExcelDatabase()
