@@ -28,8 +28,10 @@ class ChatConsumer(WebsocketConsumer):
         self.send("username=" + username)
         self.send_contacts(username)
         print("已向客户端发送 " + username + ' 的联系人列表')
-        self.send_chat_history()
-        print("已向客户端发送 " + str(self.chatting_to) + ' 的聊天记录')
+        # print(self.chatting_to)
+        if self.chatting_to != 'None' and self.chatting_to is not None:
+            self.send_chat_history()
+            print("已向客户端发送 " + str(self.chatting_to) + ' 的聊天记录')
 
     # 向前端发送联系人列表（实际上是以/分割的字符串）
     def send_contacts(self, username):
@@ -60,7 +62,8 @@ class ChatConsumer(WebsocketConsumer):
             contacts = user.contacts
         else:
             contacts = []
-        if len(contacts) == 0:
+        # print(contacts)
+        if len(contacts) == 0 or contacts[0] == 'None':
             contacts_str = 'None'
             self.chatting_to = None
         else:
@@ -71,6 +74,7 @@ class ChatConsumer(WebsocketConsumer):
                 group = DATABASE.get_group_with_group_num(group_num)
                 group_name = group.group_name
                 group_avatar = group.group_avatar
+                group_avatar = group_avatar.split('/')[-1]
                 index = group_name.find('、')
                 if index != -1:
                     members = group_name.split('、')
@@ -110,7 +114,7 @@ class ChatConsumer(WebsocketConsumer):
         elif text[:12] == 'new_message=':
             async_to_sync(self.channel_layer.group_send)(self.chatting_to, {"type": "xx.oo", "message": message})
             DATABASE.history_dict[self.chatting_to].add_history(self.user_signed_in, text[12:])
-            DATABASE.save_history()
+            DATABASE.save_history(DATABASE.history_dict[self.chatting_to].history[-1])
 
     def xx_oo(self, event):
         broadcast = 'new_msg_broadcast='

@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
+from .database import DATABASE
 
 
 def sign_in(request):
@@ -21,3 +22,36 @@ def chat_room(request):
     return render(request, 'chat_room.htm', {"username": username})
 
 
+def update_info(request):
+    if request.method == 'GET':
+        username = request.GET.get('username')
+        user = DATABASE.get_user_with_username(username)
+        email = user.email
+        avatar = user.avatar.split('/')[-1]
+        return render(request, 'update_info.htm', {"username": username, 'email': email, 'avatar': avatar})
+    if request.method == 'POST':
+        img = request.FILES.get('photo')
+        username = request.GET.get('username')
+        email = request.POST.get('email')
+        if img is not None:
+            file_name = img.name
+            suffix_name = file_name.split('.')[-1]
+            # print(username)
+            # print(file_name)
+            avatar_path = './static/avatars/' + username + '.' + suffix_name
+            f = open(avatar_path, 'wb')
+            f.close()
+            with open(avatar_path, 'wb') as avatar_file:
+                for part in img.chunks():
+                    avatar_file.write(part)
+                    avatar_file.flush()
+            DATABASE.user_list[DATABASE.get_user_index(username)].avatar = avatar_path
+        if email is not None:
+            DATABASE.user_list[DATABASE.get_user_index(username)].email = email
+        DATABASE.rewrite_user(DATABASE.get_user_with_username(username))
+        email = DATABASE.get_user_with_username(username).email
+        avatar = DATABASE.get_user_with_username(username).avatar.split('/')[-1]
+        return render(request, 'update_info.htm', {"username": username, 'email': email, 'avatar': avatar})
+
+    def add_contact(message):
+        pass

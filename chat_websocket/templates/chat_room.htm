@@ -6,8 +6,24 @@
     <title>Websocket Chatroom</title>
     <style>
         .title_bar {
-            width: 100%;
+            width: 50%;
             height: 20%;
+            float: left;
+        }
+        .title_button {
+            width:40%;
+            height: 20%;
+            float: right;
+
+        }
+        .title_button li {
+            width: 150px;
+            height: auto;
+            margin-right: 20px;
+            float: right;
+        }
+        .title_button li img{
+            filter:opacity(60%);
         }
         .message {
             flex: 1;
@@ -155,6 +171,10 @@
         <h2>WebSocket Chat Room</h2>
         <h5>Version 0.9</h5>
     </div>
+    <div class="title_button">
+        <li><a href="../update_info/?username={{ username }}"><img src="/static/images/update_info.png"></a></li>
+        <li><a href=""><img src="/static/images/add_contact.png"></a></li>
+    </div>
     <div class="layout" >
         <aside class="aside" id="contacts">
             <h1>联系人列表</h1>
@@ -177,7 +197,7 @@
 </body>
 <script>
     // 发送websocket连接请求
-    socket = new WebSocket("ws://42.192.44.52:8000/ws_chat_room/Steve/"); // 使用服务器的公网IP
+    socket = new WebSocket("ws://42.192.44.52:8000/ws_chat_room/{{ username }}/"); // 使用服务器的公网IP
 
 
     // 握手完成后自动触发

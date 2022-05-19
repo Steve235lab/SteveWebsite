@@ -7,4 +7,6 @@ urlpatterns = [
     path('email_confirm/', views.email_confirm),
     path('sign_in/', views.sign_in),
     path('chatroom/', views.chat_room),
+    path('update_info/', views.update_info),
+    path('add_contact/', views.add_contact),
 ]

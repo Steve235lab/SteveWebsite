@@ -2,7 +2,7 @@ from chat_websocket.database import User, Group, Database, ChatHistory, HistoryM
 #
 # g_1 = Group(['起飞','降落'], 114514, 'g_1')
 #
-new_user = User(username='小王', password='114514', avatar='../static/avatars/A1.JPG', contacts=['110'],
+new_user = User(username='小z', password='11451411111111111111', avatar='../static/avatars/A1.JPG', contacts=['110'],
                 invitations=[], email='email.com', confirmed='no', confirm_code='None')
 
 # history = HistoryMeta(group_num='12581', sender='校长', content='开除')

@@ -72,63 +72,59 @@ class Database:
         self.conn.close()
 
     # 将对象写入数据文件
-    def save_user(self):
-        for user in self.user_list:
-            username = user.username
-            password = user.password
-            avatar = user.avatar
-            contacts_list = user.contacts
-            contacts = ''
-            if len(contacts_list) > 0:
-                for contact in contacts_list:
-                    contacts += contact + ','
-                contacts = contacts[:-1]
-            else:
-                contacts = 'None'
-            email = user.email
-            confirmed = user.confirmed
-            confirm_code = user.confirm_code
-            sql = """insert into userchat values (0,"%s","%s","%s","%s","%s","%s","%s",0)""" % (
-                username, password, avatar, email,
-                confirmed, confirm_code, contacts)
-            self.cursor.execute(sql)
-            self.conn.commit()
+    def save_user(self, user):
+        username = user.username
+        password = user.password
+        avatar = user.avatar
+        contacts_list = user.contacts
+        contacts = ''
+        if len(contacts_list) > 0:
+            for contact in contacts_list:
+                contacts += contact + ','
+            contacts = contacts[:-1]
+        else:
+            contacts = 'None'
+        email = user.email
+        confirmed = user.confirmed
+        confirm_code = user.confirm_code
+        sql = """insert into userchat values (0,"%s","%s","%s","%s","%s","%s","%s",0)""" % (
+            username, password, avatar, email,
+            confirmed, confirm_code, contacts)
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     # 写入group
-    def save_group(self):
-        for group in self.group_list:
-            members_str = ''
-            if len(group.members) > 0:
-                for member in group.members:
-                    members_str += member + ','
-                members_str = members_str[:-1]
-            else:
-                members_str = 'None'
-            group_num = group.group_num
-            group_name = group.group_name
-            group_avatar = group.group_avatar
-            sql = """insert into contacts_chat values (0,"%s","%s","%s",0,"%s")""" % (
-                members_str, group_num, group_name, group_avatar)
-            self.cursor.execute(sql)
-            self.conn.commit()
+    def save_group(self, group):
+        members_str = ''
+        if len(group.members) > 0:
+            for member in group.members:
+                members_str += member + ','
+            members_str = members_str[:-1]
+        else:
+            members_str = 'None'
+        group_num = group.group_num
+        group_name = group.group_name
+        group_avatar = group.group_avatar
+        sql = """insert into contacts_chat values (0,"%s","%s","%s",0,"%s")""" % (
+            members_str, group_num, group_name, group_avatar)
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     # 写入history
-    def save_history(self):
-        for history in self.history_dict.values():
-            for meta in history.history:
-                group_num = meta.group_num
-                time = meta.timestamp
-                sender = meta.sender
-                content = meta.content
-                sql = """insert into chat_history values (0,"%s","%s","%s","%s")""" % (group_num, time, sender, content)
-                self.cursor.execute(sql)
-                self.conn.commit()
+    def save_history(self, meta):
+        group_num = meta.group_num
+        time = meta.timestamp
+        sender = meta.sender
+        content = meta.content
+        sql = """insert into chat_history values (0,"%s","%s","%s","%s")""" % (group_num, time, sender, content)
+        self.cursor.execute(sql)
+        self.conn.commit()
 
     # 添加新用户
     # new_user: User Object
     def add_user(self, new_user):
         self.user_list.append(new_user)
-        self.save_user()
+        self.save_user(new_user)
 
     # 查找指定用户在用户列表中的序号
     # username: str
@@ -195,7 +191,7 @@ class Database:
     # new_group: Group Object
     def add_group(self, new_group):
         self.group_list.append(new_group)
-        self.save_group()
+        self.save_group(new_group)
 
     # 移除聊天群组
     # group_num: int
