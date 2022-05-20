@@ -7,7 +7,7 @@ from channels.exceptions import StopConsumer
 from asgiref.sync import async_to_sync
 import time
 from .email_sender import EmailSender
-from .database import DATABASE, User
+from .database import DATABASE, User, Group
 import re
 
 
@@ -276,3 +276,96 @@ class CfmEmlConsumer(WebsocketConsumer):
     def websocket_disconnect(self, message):
         print("Confirm Email Disconnected")
         raise StopConsumer()
+
+
+class AddContactConsumer(WebsocketConsumer):
+
+    def websocket_connect(self, message):
+        # 接收客户端发送的websocket连接请求，与客户端握手创建连接
+        self.accept()
+        print("Add Contact Connected")
+
+    def websocket_receive(self, message):
+        username = self.scope['url_route']['kwargs'].get("username")
+        text = message['text']
+        cmd_key = text.split('=')[0]
+        if cmd_key == 'search':     # 处理"search=..."消息
+            user_input = text.split('=')[-1]
+            try:    # 用户使用组号精确搜索
+                group_num = int(user_input)
+                matched_group = DATABASE.get_group_with_group_num(group_num)
+                if matched_group.group_num != -1:   # 找到组
+                    group_name = matched_group.group_name
+                    if group_name.find('、') == -1:  # 非私聊组
+                        group_avatar = matched_group.group_avatar.split('/')[-1]
+                        matched_groups_str = 'matched_groups=' + user_input + ',' + group_name + ',' + group_avatar + '/None'
+                        self.send(matched_groups_str)
+                        self.send_matched_user(user_input)
+                        return None
+                    else:   # 私聊组
+                        matched_groups_str = 'matched_groups=None'
+                        self.send(matched_groups_str)
+                        self.send_matched_user(user_input)
+                        return None
+                else:   # 未找到组
+                    matched_groups_str = 'matched_groups=None'
+                    self.send(matched_groups_str)
+                    self.send_matched_user(user_input)
+                    return None
+            except:     # 用户使用用户名或组名进行搜索
+                self.send_matched_user(user_input)
+                self.send_name_matched_group(user_input)
+        if cmd_key == 'add_friend':
+            friend_name = text.split('=')[-1]
+            if len(DATABASE.group_list) > 0:
+                new_group_num = int(DATABASE.group_list[-1].group_num) + 1
+            else:
+                new_group_num = 0
+            new_group = Group([username, friend_name], new_group_num)
+            DATABASE.add_group(new_group)
+            host = DATABASE.get_user_with_username(username)
+            host.contacts.append(new_group_num)
+            host_index = DATABASE.get_user_index(username)
+            DATABASE.user_list[host_index] = host
+            DATABASE.rewrite_user(host)
+            friend = DATABASE.get_user_with_username(friend_name)
+            friend.contacts.append(new_group_num)
+            friend_index = DATABASE.get_user_index(friend_name)
+            DATABASE.user_list[friend_index] = friend
+            DATABASE.rewrite_user(friend)
+            print("add friend success")
+        if cmd_key == 'add_group':
+            group_num = int(text.split('=')[-1])
+            group = DATABASE.get_group_with_group_num(group_num)
+            group.add_member(username)      # TODO: 在rewrite_group()完成前这里仅在内存中做了改动，没有写入数据库
+            host = DATABASE.get_user_with_username(username)
+            host.contacts.append(new_group_num)
+            host_index = DATABASE.get_user_index(username)
+            DATABASE.user_list[host_index] = host
+            DATABASE.rewrite_user(host)
+        if cmd_key == 'new_group':
+            pass
+
+    def send_matched_user(self, username):
+        matched_user = DATABASE.get_user_with_username(username)
+        if matched_user.username != 'Void':
+            matched_user_str = 'matched_users=' + username + ','
+            matched_user_str += matched_user.avatar.split('/')[-1] + '/None'
+        else:
+            matched_user_str = 'matched_users=None'
+        self.send(matched_user_str)
+
+    def send_name_matched_group(self, group_name):
+        if group_name.find('、') == -1:      # 非私聊组
+            matched_groups_str = 'matched_groups='
+            for group in DATABASE.group_list:
+                if group_name == group.group_name:
+                    matched_groups_str += str(group.group_num) + ','
+                    matched_groups_str += group_name + ','
+                    matched_groups_str += group.group_avatar.split('/')[-1] + '/'
+            matched_groups_str += 'None'
+        else:   # 私聊组返回未找到
+            matched_groups_str = 'matched_groups=None'
+        self.send(matched_groups_str)
+
+

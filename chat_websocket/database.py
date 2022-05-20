@@ -284,7 +284,7 @@ class Group:
     # members: list of usernames
     # group_num: int
     # group_name: str
-    def __init__(self, members, group_num, group_name, group_avatar='/static/avatars/Judy.JPG'):
+    def __init__(self, members, group_num, group_name, group_avatar='/static/avatars/QQ.jpg'):
         self.members = members
         self.group_num = group_num
         self.group_name = group_name
@@ -298,6 +298,7 @@ class Group:
             print("已将用户" + username + "添加至群组" + self.group_name)
         else:
             print("用户" + username + "已经在群组" + self.group_name + "中，不可重复添加。")
+        # TODO: 在这里执行rewrite_group()
 
     # 删除成员
     # username: str

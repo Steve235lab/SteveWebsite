@@ -11,4 +11,5 @@ websocket_urlpatterns = [
     re_path(r'ws_sign_up/', consumers.SignUpConsumer.as_asgi()),
     re_path(r'ws_sign_in/', consumers.SignInConsumer.as_asgi()),
     re_path(r'ws_cfm_eml/(?P<username>\w+)/$', consumers.CfmEmlConsumer.as_asgi()),
+    re_path(r'ws_add_contact/(?P<username>\w+)/$', consumers.AddContactConsumer.as_asgi()),
 ]

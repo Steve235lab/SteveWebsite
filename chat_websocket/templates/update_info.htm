@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <meta charset="UTF-8">
     <title>Update Info</title>
 </head>
 <body>
-    <div>用户名：{{ username }}</div>
-    <form action="/websocket/update_info/?username={{ username }}" method="POST">
-        <div>
-            邮箱：<input type="text" name="email" id="email" value="{{ email }}"/>
-            <button id="email" class="btn btn-danger" type="submit">保存修改</button>
-        </div>
-    </form>
-    <form action="/websocket/update_info/?username={{ username }}" method="POST" enctype="multipart/form-data">
-        <div class="updateImg">
-            <img src="/static/avatars/{{ avatar }}" alt="用户头像" height="400px" width="400px">
-        </div>
-        <input name="photo" type="file" id="exampleInputFile">
-        <button id="photo" class="btn btn-danger" type="submit">上传头像</button>
-    </form>
+    <div style="width: 100%; text-align: center;">
+        <div>用户名：{{ username }}</div>
+        <form action="/websocket/update_info/?username={{ username }}" method="POST">
+            <div>
+                邮箱：<input type="text" name="email" id="email" value="{{ email }}"/>
+                <button id="email" class="btn btn-danger" type="submit">保存修改</button>
+            </div>
+        </form>
+        <form action="/websocket/update_info/?username={{ username }}" method="POST" enctype="multipart/form-data">
+            <div class="updateImg">
+                <img src="/static/avatars/{{ avatar }}" alt="用户头像" height=auto width="800px">
+            </div>
+            <input name="photo" type="file" id="exampleInputFile">
+            <button id="photo" class="btn btn-danger" type="submit">上传头像</button>
+        </form>
+    </div>
 </body>
 </html>
