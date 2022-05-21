@@ -11,7 +11,7 @@ from pymysql import connect
 class Database:
     user_list = []
     group_list = []
-    history_dict = []
+    history_dict = {}
 
     # 读取数据文件初始化
     def __init__(self):
@@ -50,11 +50,14 @@ class Database:
 
         group_num_list = []
         meta_historys = []
-        history_dict ={}
+        history_dict = {}
         for history in histories:
             group_number = history[1]
             if group_number not in group_num_list:
                 group_num_list.append(group_number)
+        for group in self.group_list:
+            if group.group_num not in group_num_list:
+                self.history_dict[group.group_num] = ChatHistory(group.group_num)
             timestamp = history[2]
             sender = history[3]
             content = history[4]
@@ -62,10 +65,9 @@ class Database:
             meta_historys.append(meta_history)
         for g_num in group_num_list:
             chat_history = ChatHistory(g_num)
-            history_dict[int(g_num)] = chat_history
+            self.history_dict[int(g_num)] = chat_history
         for meta in meta_historys:
-            history_dict[int(meta.group_num)].history.append(meta)
-        self.history_dict = history_dict
+            self.history_dict[int(meta.group_num)].history.append(meta)
 
     def __del__(self):
         self.cursor.close()
@@ -80,7 +82,7 @@ class Database:
         contacts = ''
         if len(contacts_list) > 0:
             for contact in contacts_list:
-                contacts += contact + ','
+                contacts += str(contact) + ','
             contacts = contacts[:-1]
         else:
             contacts = 'None'
@@ -198,18 +200,22 @@ class Database:
     # username: str
     # return User Object
     def get_user_with_username(self, username):
+        found_flag = 0
         for user in self.user_list:
             if username == user.username:
+                found_flag = 1
                 return user
         # 没找到返回Void用户
-        user = User(username='Void', password='Void', avatar='Void', email='Void', confirmed='no',
-                    confirm_code='Void', contacts=['Void'], invitations=[])
-        return user
+        if found_flag == 0:
+            user = User(username='Void', password='Void', avatar='Void', email='Void', confirmed='no',
+                        confirm_code='Void', contacts=['Void'], invitations=[])
+            return user
 
     # 添加新的聊天群组
     # new_group: Group Object
     def add_group(self, new_group):
         self.group_list.append(new_group)
+        self.history_dict[new_group.group_num] = ChatHistory(new_group.group_num)
         self.save_group(new_group)
 
     # 移除聊天群组
@@ -223,17 +229,21 @@ class Database:
     # group_num: int
     # return Group Object
     def get_group_with_group_num(self, group_num):
+        found_flag = 0
         for group in self.group_list:
-            if group_num == group.group_num:
+            if int(group_num) == int(group.group_num):
+                found_flag = 1
+                # print(group.group_name)
                 return group
         # 没找到返回组号为-1的组
-        group = Group(members=[], group_num=-1, group_name='Void')
-        return group
+        if found_flag == 0:
+            group = Group(members=[], group_num=-1, group_name='Void')
+            return group
 
     # 添加新的历史记录
     # new_history:HistoryMeta Object
     def add_history(self, new_history):
-        self.history_dict.append(new_history)
+        self.history_dict[new_history.group_num] = new_history
         self.save_history()
 
     # 通过group_num查找历史记录

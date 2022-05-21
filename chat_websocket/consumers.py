@@ -73,6 +73,7 @@ class ChatConsumer(WebsocketConsumer):
                 group_num = contact
                 group = DATABASE.get_group_with_group_num(group_num)
                 group_name = group.group_name
+                # print(group_name)
                 group_avatar = group.group_avatar
                 group_avatar = group_avatar.split('/')[-1]
                 index = group_name.find('、')
