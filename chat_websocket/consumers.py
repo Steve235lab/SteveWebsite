@@ -315,7 +315,7 @@ class AddContactConsumer(WebsocketConsumer):
             except:     # 用户使用用户名或组名进行搜索
                 self.send_matched_user(user_input)
                 self.send_name_matched_group(user_input)
-        if cmd_key == 'add_friend':
+        if cmd_key == 'add_friend':     # 当前登录的用户添加另一名用户为好友
             friend_name = text.split('=')[-1]
             if len(DATABASE.group_list) > 0:
                 new_group_num = int(DATABASE.group_list[-1].group_num) + 1
@@ -334,17 +334,29 @@ class AddContactConsumer(WebsocketConsumer):
             DATABASE.user_list[friend_index] = friend
             DATABASE.rewrite_user(friend)
             print("add friend success")
-        if cmd_key == 'add_group':
+        if cmd_key == 'add_group':      # 当前登录的用户加入一个已经存在的群聊
             group_num = int(text.split('=')[-1])
             group = DATABASE.get_group_with_group_num(group_num)
-            group.add_member(username)      # TODO: 在rewrite_group()完成前这里仅在内存中做了改动，没有写入数据库
+            group.add_member(username)
+            DATABASE.rewrite_group(group)
             host = DATABASE.get_user_with_username(username)
             host.contacts.append(new_group_num)
             host_index = DATABASE.get_user_index(username)
             DATABASE.user_list[host_index] = host
             DATABASE.rewrite_user(host)
-        if cmd_key == 'new_group':
-            pass
+        if cmd_key == 'new_group':      # 当前登录的用户创建一个新的群聊
+            group_name = text.split('=')[-1]
+            if len(DATABASE.group_list) > 0:
+                new_group_num = int(DATABASE.group_list[-1].group_num) + 1
+            else:
+                new_group_num = 0
+            new_group = Group([username], new_group_num)
+            DATABASE.add_group(new_group)
+            user = DATABASE.get_user_with_username(username)
+            user.contacts.append(new_group_num)
+            user_index = DATABASE.get_user_index(username)
+            DATABASE.user_list[user_index] = user
+            DATABASE.rewrite_user(user)
 
     def send_matched_user(self, username):
         matched_user = DATABASE.get_user_with_username(username)

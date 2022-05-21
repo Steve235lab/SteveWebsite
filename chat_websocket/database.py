@@ -160,6 +160,25 @@ class Database:
         self.cursor.execute(sql)
         self.conn.commit()
 
+    # 群组覆盖写入
+    # changed_group: Group Object
+    def rewrite_group(self, changed_group):
+        members_list = changed_group.members
+        members_str = ''
+        if len(members_list) > 0:
+            for member in members_list:
+                members_str += member + ','
+            members_str = members_str[:-1]
+        else:
+            members_str = 'None'
+        re_group_num = changed_group.group_num
+        re_group_name = changed_group.group_name
+        re_group_avatar = changed_group.group_avatar
+        sql = """update contacts_chat set members = ('%s'),group_num = ('%s'),group_name = ('%s'),group_avatar = ('%s')""" % (
+            members_str, re_group_num, re_group_name, re_group_avatar)
+        self.cursor.execute(sql)
+        self.conn.commit()
+
     # 修改现有用户
     # changed_user: User Object
     def change_user_info(self, changed_user):
@@ -298,7 +317,6 @@ class Group:
             print("已将用户" + username + "添加至群组" + self.group_name)
         else:
             print("用户" + username + "已经在群组" + self.group_name + "中，不可重复添加。")
-        # TODO: 在这里执行rewrite_group()
 
     # 删除成员
     # username: str
