@@ -36,22 +36,39 @@
             float: left;
         }
         .words{
-            height: 40px;
-            display: inline-block;
+            width: 80%;
+            height: auto;
+            float: left;
+            margin-top: 20px;
+            position: relative;
             }
+        .span-wrap{
+            position: relative;
+            display: inline-block;
+            width: 500px;
+            float: right;
+            position: relative;
+        }
         .words span {
 
             margin-left:20px;
+            margin-top: 0px;
             background-color: rgb(7, 148, 176);
             border-radius: 40px;
            color:rgb(229, 225, 225) ;
             line-height: 30px;
-            padding-top: 1px;
-            padding-bottom: 1px;
-            padding-left: 8px;
-            padding-right: 8px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding-left: 18px;
+            padding-right: 18px;
             display: block;
-            float: right;
+            float: left;
+            box-sizing:content-box;
+            max-width: 500px;
+            position: relative;
+            white-space:normal;
+            word-break:break-all;
+            word-wrap:break-word;
 
 
         }
@@ -184,11 +201,10 @@
                 </ul>
         </aside>
         <div class="message" id="message">
-            <div class="word_wrap">
-                <div class="words">
+            <div class="words">
                 <img src="/static/avatars/A4.png">
+                <div class="span-wrap"></div>
                 <span>色调</span>
-                </div>
             </div>
         </div>
         <div class="input_bar">
@@ -297,18 +313,18 @@
         // 将后端消息显示在日志中
         console.log(event.data);
         // 将后端消息显示在聊天框中
-        let words_wrap = document.createElement("div");
-        words_wrap.className = "word_wrap";
         let words = document.createElement("div");
         words.className = "words";
         let avatar_inline = document.createElement("img");
         avatar_inline.src = "/static/avatars/Judy.JPG";       // 用户头像路径
+        let span_wrap = document.createElement("div");
+        span_wrap.className = "span-wrap";
         let tag = document.createElement("span");
         tag.innerText = event.data;     // 历史消息
         words.appendChild(avatar_inline);
+        words.appendChild(span_wrap);
         words.appendChild(tag);
-        words_wrap.appendChild(words);
-        document.getElementById("message").appendChild(words_wrap);
+        document.getElementById("message").appendChild(words);
     }
 
     // 回车发送消息
