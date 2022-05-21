@@ -46,8 +46,15 @@
             position: relative;
             display: inline-block;
             width: 500px;
-            float: right;
+            float: left;
             position: relative;
+        }
+        .timer{
+            margin-top: -10px;
+            margin-left: 20px;
+            position: relative;
+            color: rgb(152, 147, 147);
+            font-size:xx-small;
         }
         .words span {
 
@@ -201,11 +208,6 @@
                 </ul>
         </aside>
         <div class="message" id="message">
-{#            <div class="words">#}
-{#                <img src="/static/avatars/A4.png">#}
-{#                <div class="span-wrap"></div>#}
-{#                <span>色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调色调</span>#}
-{#            </div>#}
         </div>
         <div class="input_bar">
         <input type="text" placeholder="请输入" id="txt">
@@ -224,26 +226,46 @@
     }
 
 
-    // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
+ // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
+ // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
     socket.onmessage = function (event) {
         var receive = event.data;
-<!--        alert(receive)-->
+        //alert(receive)
         var i = 0;
         var iname = 0;
         let elements = [];
-        var name = ['0'];
+        var numlist = ['0'];
+        var num = '';
         //停止循环判断
         if(receive.substr(1,1)=='o'){
-        //列表
-          while(receive.substr(i,4)!='None'){
+        //列表contacts=75,user2,QQ.jpg/76,三人群聊测试,QQ.jpg/None
+          while(receive.substr(i+1,4)!='None'){
             i += 1;
-            if(receive.substr(i-1,1)== iname+1){
+            if(receive.substr(i-1,1)== '='||receive.substr(i-1,1)== '/'){
+                var temp = [];
+                while(receive.substr(i,1) !=','){
+                temp += receive.substr(i,1);
+                i += 1;
+                };
+                num = temp;
+                //alert(num);
                 i += 1;
                 var temp = [];
+                while(receive.substr(i,1) !=','){
+                temp += receive.substr(i,1);
+                i += 1;
+                };
+                let name = temp;
+                //alert(name);
+                i = i+1;
+                temp = [];
                 while(receive.substr(i,1) !='/'){
                 temp += receive.substr(i,1);
                 i += 1;
                 };
+                way = temp;
+                //alert(way);
+                //alert(receive.substr(i,1));
                 //创建联系人<li>
 
                 let contact_li = document.createElement("li");
@@ -253,7 +275,7 @@
                 let c_photo_div = document.createElement("div");
                 c_photo_div.className = "c-photo";
                 let c_img = document.createElement("img");
-                c_img.src = "/static/avatars/Judy.JPG";     // 取用户头像路径放在这里
+                c_img.src = "/static/avatars/"+way;     // 取用户头像路径放在这里
                 c_img.alt = "avatar";
                 c_img.width = 120;
                 c_img.height = 120;
@@ -261,7 +283,7 @@
                 let c_info_div = document.createElement("div");
                 c_info_div.className = "info";
                 let username_span = document.createElement("span");
-                username_span.innerText = temp;    // 取用户名放在这里
+                username_span.innerText = name;    // 取用户名放在这里
                 c_info_div.appendChild(username_span);
                 let c_info_br = document.createElement("br");
                 c_info_div.appendChild(c_info_br);
@@ -270,14 +292,13 @@
                 c_info_div.appendChild(last_msg_span);
                 contact_li.appendChild(c_photo_div);
                 contact_li.appendChild(c_info_div);
-                name.push(temp);
+                numlist.push(num);
 
                 document.getElementById("contacts").appendChild(contact_li);
                 iname += 1;
             };
           }
-        };
-
+        //alert(numlist)
         let children = document.getElementById("contacts").children;
         for(let child of children){
             if (child.id.length>0 && child.id.length<5){
@@ -286,46 +307,127 @@
                 while (child.id != 'li' + i){
                 i += 1;
                 };
-                temp = name[i+1];
+                temp = numlist[i+1];
                     message = 'chatting_to=' + temp;
                     socket.send(message);
-                    alert(message);                                                                // 事件处理代码
+                    let message_box = document.getElementById('message');
+                    message_box.innerHTML = '';
+                    //alert(message);                                                                // 事件处理代码
                 });
             }
         }
-
-<!--        let children = document.getElementById("contacts").children;-->
-<!--        for(let child of children){-->
-<!--            if (child.id.length>0 && child.id.length<5){-->
-<!--                child.addEventListener("click", function(){-->
-<!--                    alert(i);-->
-<!--                    message = 'chatting_to=' + name[i];-->
-<!--                    socket.send(message);-->
-<!--                    alert(message);                                                                // 事件处理代码-->
-<!--                });-->
-<!--            }-->
-<!--        }-->
+        };
 
 
-        if(receive.substr(1,1)!='o'){
-<!--        alert('历史信息')-->
-        }
+
+
+
+        var history = event.data;
+        // alert(history)
+        if(history.substr(5,1)=='h'){
+        var i = 0;
+        while(history.substr(i,4)!='None'){    //遍历chat_history=None
+        i += 1;
+            if(history.substr(i,4)== '/165' ||history.substr(i,4)=='=165'){     //单条消息内遍历
+                let temp = [];
+                i += 1;
+                while(history.substr(i,1) !=','){      //获得时间戳
+                    temp += history.substr(i,1);
+                    i += 1;
+                };
+                time = temp;
+
+                temp = [];
+                i += 1;
+                while(history.substr(i,1) !=','){      //获得昵称
+                    temp += history.substr(i,1);
+                    i += 1;
+                };
+                nameshow = temp;
+
+                temp = [];
+
+                while(history.substr(i+1,1) !=','){
+                    let falg = 0;
+                    i += 1;
+                    if(history.substr(i,10) ==time){
+                        temp = temp + '/';
+                        i += 9;
+                        flag = 1;
+                    };
+                    if (falg == 0 && history.substr(i+1,1) != ','){
+                        temp += history.substr(i,1);
+                    }
+                    else{
+                        temp += '';
+                    }
+                }
+                message = temp+history.substr(i,1);
+                time = myDate(time);
+                temp = [];
+                i += 2;
+                while(history.substr(i,1) !='/'){      //获得图片路径
+                    temp += history.substr(i,1);
+                    i += 1;
+                };
+                i = i -1;
+                way = temp;
+<!--        alert(time)-->
+<!--        alert(nameshow)-->
+<!--        alert(message)-->
+<!--        alert(way)-->
+
+        // message = message + time;
+
         // 将后端消息显示在日志中
-        console.log(event.data);
+        console.log(history);
         // 将后端消息显示在聊天框中
         let words = document.createElement("div");
         words.className = "words";
         let avatar_inline = document.createElement("img");
-        avatar_inline.src = "/static/avatars/Judy.JPG";       // 用户头像路径
+        avatar_inline.src = "/static/avatars/"+way;       // 用户头像路径
         let span_wrap = document.createElement("div");
         span_wrap.className = "span-wrap";
+        let timer = document.createElement("div");
+        timer.className = "timer";
+        timer.innerText = nameshow + ' ' + time;
         let tag = document.createElement("span");
-        tag.innerText = event.data;     // 历史消息
+        tag.innerText = message;     // 历史消息
+        span_wrap.appendChild(timer);
+        span_wrap.appendChild(tag);
         words.appendChild(avatar_inline);
         words.appendChild(span_wrap);
-        words.appendChild(tag);
         document.getElementById("message").appendChild(words);
-    }
+            }
+        }
+        }
+
+
+    };
+    //转时间戳
+    function myDate (value, type = 1){
+    var time = new Date(value * 1000);
+    var year = time.getFullYear();
+    var month = time.getMonth() + 1;
+    var date = time.getDate();
+    var hour = time.getHours();
+    var minute = time.getMinutes();
+    var second = time.getSeconds();
+    month = month < 10 ? "0" + month : month;
+    date = date < 10 ? "0" + date : date;
+    hour = hour < 10 ? "0" + hour : hour;
+    minute = minute < 10 ? "0" + minute : minute;
+    second = second < 10 ? "0" + second : second;
+    var arr = [
+    year + "-" + month + "-" + date,
+    year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second,
+    year + "年" + month + "月" + date,
+    year + "年" + month + "月" + date + " " + hour + ":" + minute + ":" + second,
+    hour + ":" + minute + ":" + second
+    ]
+    return arr[type];
+}
+
 
     // 回车发送消息
     document.onkeydown = function(e){
@@ -338,7 +440,8 @@
     // 点击按钮发送消息
     function sendMessage() {
         let message = document.getElementById("txt");
-        socket.send(message);
+        var msg = 'new_message=' + message.value;
+        socket.send(msg);
         message.value=[];
     }
 

@@ -15,6 +15,7 @@ class Database:
 
     # 读取数据文件初始化
     def __init__(self):
+        group_num_list = []
         self.conn = connect(host='localhost', port=3306, user='root', password='root', database='chatroom',
                             charset='utf8')
         self.cursor = self.conn.cursor()
@@ -39,6 +40,7 @@ class Database:
         for group in groups:
             members = group[1].split(',')
             group_num = group[2]
+            group_num_list.append(group_num)
             group_name = group[3]
             group_avatar = group[5]
             origin_groups = Group(members=members, group_num=group_num, group_name=group_name,
@@ -48,26 +50,15 @@ class Database:
         self.cursor.execute(sql3)
         histories = self.cursor.fetchall()
 
-        group_num_list = []
-        meta_historys = []
-        history_dict = {}
-        for history in histories:
-            group_number = history[1]
-            if group_number not in group_num_list:
-                group_num_list.append(group_number)
-        for group in self.group_list:
-            if group.group_num not in group_num_list:
-                self.history_dict[group.group_num] = ChatHistory(group.group_num)
-            timestamp = history[2]
-            sender = history[3]
-            content = history[4]
-            meta_history = HistoryMeta(group_num=group_number, sender=sender, content=content, timestamp=timestamp)
-            meta_historys.append(meta_history)
-        for g_num in group_num_list:
-            chat_history = ChatHistory(g_num)
-            self.history_dict[int(g_num)] = chat_history
-        for meta in meta_historys:
-            self.history_dict[int(meta.group_num)].history.append(meta)
+        for group_num in group_num_list:
+            self.history_dict[group_num] = ChatHistory(group_num)
+        for meta in histories:
+            group_num = meta[1]
+            timestamp = meta[2]
+            sender = meta[3]
+            content = meta[4]
+            meta_history = HistoryMeta(group_num=group_num, sender=sender, content=content, timestamp=timestamp)
+            self.history_dict[group_num].history.append(meta_history)
 
     def __del__(self):
         self.cursor.close()
@@ -243,8 +234,8 @@ class Database:
     # 添加新的历史记录
     # new_history:HistoryMeta Object
     def add_history(self, new_history):
-        self.history_dict[new_history.group_num] = new_history
-        self.save_history()
+        self.history_dict[new_history.group_num].history.append(new_history)
+        self.save_history(new_history)
 
     # 通过group_num查找历史记录
     def get_history_with_group_num(self, group_num):
@@ -371,7 +362,7 @@ class HistoryMeta:
 
     # 格式化为字符串
     def format_str(self):
-        history_meta_str = self.timestamp + ',' + self.sender + ','
+        history_meta_str = str(self.timestamp) + ',' + self.sender + ','
 
         # 将content中可能存在的'/'用timestamp替代
         temp_content = self.content

@@ -7,7 +7,7 @@ from channels.exceptions import StopConsumer
 from asgiref.sync import async_to_sync
 import time
 from .email_sender import EmailSender
-from .database import DATABASE, User, Group
+from .database import DATABASE, User, Group, HistoryMeta
 import re
 
 
@@ -82,13 +82,15 @@ class ChatConsumer(WebsocketConsumer):
                     for member in members:
                         if member != username:
                             group_name = member
+                            group_avatar = DATABASE.get_user_with_username(group_name).avatar.split('/')[-1]
                 contacts_str += str(group_num) + ',' + group_name + ',' + group_avatar + '/'
             contacts_str += 'None'
         self.send("contacts=" + contacts_str)
 
     # 发送当前组的聊天记录
     def send_chat_history(self):
-        async_to_sync(self.channel_layer.group_add)(self.chatting_to, self.channel_name)
+        chatting_to = str(self.chatting_to)
+        async_to_sync(self.channel_layer.group_add)(chatting_to, self.channel_name)
         chat_history = DATABASE.history_dict[int(self.chatting_to)]
         chat_history_str = 'chat_history='
         if len(chat_history.history) > 0:
@@ -105,7 +107,7 @@ class ChatConsumer(WebsocketConsumer):
         # 浏览器基于websocket向后端发送数据，自动触发接收消息，并进行回复
         # message: {'type': 'websocket.receive', 'text': '用户发送的内容'}
         text = message['text']
-        # print(text)
+        print(text)
         # 响应"chatting_to="类型的消息，切换当前聊天群组
         if text[:12] == 'chatting_to=':
             self.chatting_to = int(text[12:])
@@ -113,18 +115,20 @@ class ChatConsumer(WebsocketConsumer):
             print("已向客户端发送 " + str(self.chatting_to) + ' 的聊天记录')
         # 响应"new_message="类型的消息，保存新消息并广播
         elif text[:12] == 'new_message=':
-            async_to_sync(self.channel_layer.group_send)(self.chatting_to, {"type": "xx.oo", "message": message})
-            DATABASE.history_dict[self.chatting_to].add_history(self.user_signed_in, text[12:])
-            DATABASE.save_history(DATABASE.history_dict[self.chatting_to].history[-1])
+            chatting_to = str(self.chatting_to)
+            async_to_sync(self.channel_layer.group_send)(chatting_to, {"type": "xx.oo", "message": message})
+            new_meta = HistoryMeta(int(self.chatting_to), self.user_signed_in, text[12:])
+            DATABASE.add_history(new_meta)
+            # DATABASE.save_history(DATABASE.history_dict[self.chatting_to].history[-1])
 
     def xx_oo(self, event):
-        broadcast = 'new_msg_broadcast='
+        broadcast = 'chat_history='
         timestamp = int(time.mktime(time.localtime(time.time())))
         sender = self.user_signed_in
         content = event['message']['text'][12:]
         avatar = DATABASE.get_user_with_username(sender).avatar
         avatar = avatar.split('/')[-1]
-        broadcast += timestamp + ',' + sender + ',' + content + ',' + avatar
+        broadcast += str(timestamp) + ',' + sender + ',' + content + ',' + avatar + '/None'
         self.send(broadcast)
 
     def websocket_disconnect(self, message):

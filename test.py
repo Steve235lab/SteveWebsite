@@ -38,9 +38,12 @@ group_public = Group(members=['user1', 'user2', 'user3'], group_num=76, group_na
 # DATABASE.add_history(history_75)
 # DATABASE.add_history(history_76)
 
-user4 = User(username='user4', password='123321', avatar='/static/avatars/A1.JPG', contacts=[77], invitations=[], email='gg',
-             confirmed='yes', confirm_code='no')
-group_77 = Group(members=['user4'], group_num=77, group_name='test_group', group_avatar='/static/avatars/QQ.jpg')
-DATABASE.add_user(user4)
-DATABASE.add_group(group_77)
+# history_meta = HistoryMeta(75, 'user1', '后台添加的聊天记录')
+# DATABASE.save_history(history_meta)
 
+# user1 = DATABASE.get_user_with_username('user1')
+# user1.avatar = '/static/avatars/A1.png'
+# DATABASE.rewrite_user(user1)
+
+dictionary = DATABASE.history_dict
+print(dictionary)
