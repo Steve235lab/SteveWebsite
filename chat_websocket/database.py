@@ -132,6 +132,7 @@ class Database:
     # 用户覆盖写入
     # changed_user: User Object
     def rewrite_user(self, changed_user):
+        # 仅覆盖写入数据库，内存中user_list修改需在外部进行
         re_name = changed_user.username
         re_password = changed_user.password
         re_avatar = changed_user.avatar
@@ -156,6 +157,13 @@ class Database:
     # 群组覆盖写入
     # changed_group: Group Object
     def rewrite_group(self, changed_group):
+        # 对内存中的group_list对象进行修改
+        changed_group_num = changed_group.group_num
+        for index in range(len(self.group_list)):
+            if self.group_list[index].group_num == changed_group_num:
+                self.group_list[index] = changed_group
+                break
+        # 覆盖写入数据库
         re_members_list = changed_group.members
         re_members_str = ''
         if len(re_members_list) > 0:
@@ -316,8 +324,10 @@ class Group:
         if username not in self.members:
             self.members.append(username)
             print("已将用户" + username + "添加至群组" + self.group_name)
+            return 0
         else:
             print("用户" + username + "已经在群组" + self.group_name + "中，不可重复添加。")
+            return 1
 
     # 删除成员
     # username: str

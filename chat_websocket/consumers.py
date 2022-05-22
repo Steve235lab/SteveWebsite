@@ -162,10 +162,14 @@ class SignUpConsumer(WebsocketConsumer):
                 print("用户邮箱" + email + "已通过检查")
                 self.send("OK")
                 # 构造新用户对象
-                user = User(username=username, password=password, avatar='../static/avatars/Judy.JPG', contacts=[],
+                user = User(username=username, password=password, avatar='../static/avatars/Judy.JPG', contacts=[2],
                             invitations=[], email=email, confirmed='no', confirm_code='None')
                 # 将新用户保存到数据库
                 DATABASE.add_user(user)
+                # 向“公共大厅”中添加新用户
+                public_chat = DATABASE.get_group_with_group_num(2)
+                public_chat.add_member(username)
+                DATABASE.rewrite_group(public_chat)
                 # 发送验证邮件
                 sender = EmailSender(receiver_address=email, username=username)
                 sender.generate_content()
@@ -327,40 +331,46 @@ class AddContactConsumer(WebsocketConsumer):
                 return None
         if cmd_key == 'add_friend':     # 当前登录的用户添加另一名用户为好友
             friend_name = text.split('=')[-1]
-            if len(DATABASE.group_list) > 0:
-                new_group_num = int(DATABASE.group_list[-1].group_num) + 1
+            if friend_name == username:
+                self.send("不能添加自己为好友")
             else:
-                new_group_num = 0
-            group_name = username + '、' + friend_name
-            group_name2 = friend_name + '、' + username
-            if self.search_name_matched_group(group_name) == 0 and self.search_name_matched_group(group_name2) == 0:
-                new_group = Group([username, friend_name], new_group_num, group_name)
-                DATABASE.add_group(new_group)
-                host = DATABASE.get_user_with_username(username)
-                host.contacts.append(new_group_num)
-                host_index = DATABASE.get_user_index(username)
-                DATABASE.user_list[host_index] = host
-                DATABASE.rewrite_user(host)
-                friend = DATABASE.get_user_with_username(friend_name)
-                friend.contacts.append(new_group_num)
-                friend_index = DATABASE.get_user_index(friend_name)
-                DATABASE.user_list[friend_index] = friend
-                DATABASE.rewrite_user(friend)
-                print("add friend success")
-            else:
-                print("不可重复添加好友")
+                if len(DATABASE.group_list) > 0:
+                    new_group_num = int(DATABASE.group_list[-1].group_num) + 1
+                else:
+                    new_group_num = 0
+                group_name = username + '、' + friend_name
+                group_name2 = friend_name + '、' + username
+                if self.search_name_matched_group(group_name) == 0 and self.search_name_matched_group(group_name2) == 0:
+                    new_group = Group([username, friend_name], new_group_num, group_name)
+                    DATABASE.add_group(new_group)
+                    host = DATABASE.get_user_with_username(username)
+                    host.contacts.append(new_group_num)
+                    host_index = DATABASE.get_user_index(username)
+                    DATABASE.user_list[host_index] = host
+                    DATABASE.rewrite_user(host)
+                    friend = DATABASE.get_user_with_username(friend_name)
+                    friend.contacts.append(new_group_num)
+                    friend_index = DATABASE.get_user_index(friend_name)
+                    DATABASE.user_list[friend_index] = friend
+                    DATABASE.rewrite_user(friend)
+                    print("add friend success")
+                else:
+                    print("不可重复添加好友")
+                    self.send("不能重复添加联系人")
         if cmd_key == 'add_group':      # 当前登录的用户加入一个已经存在的群聊
+            group_num = int(text.split('=')[-1])
+            group = DATABASE.get_group_with_group_num(group_num)
             try:
-                group_num = int(text.split('=')[-1])
-                group = DATABASE.get_group_with_group_num(group_num)
-                print("host = ", username)
-                group.add_member(username)
-                DATABASE.rewrite_group(group)
-                host = DATABASE.get_user_with_username(username)
-                host.contacts.append(group_num)
-                host_index = DATABASE.get_user_index(username)
-                DATABASE.user_list[host_index] = host
-                DATABASE.rewrite_user(host)
+                if group.add_member(username) == 0:
+                    DATABASE.rewrite_group(group)
+                    host = DATABASE.get_user_with_username(username)
+                    host.contacts.append(group_num)
+                    host_index = DATABASE.get_user_index(username)
+                    DATABASE.user_list[host_index] = host
+                    DATABASE.rewrite_user(host)
+                else:
+                    print("不能重复添加群组")
+                    self.send("不能重复添加联系人")
             except:
                 pass
         if cmd_key == 'new_group':      # 当前登录的用户创建一个新的群聊

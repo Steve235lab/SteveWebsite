@@ -221,8 +221,14 @@
         var receive = event.data;
         //alert(receive);
         //仅使用上一句matched_users=Steve,Steve.JPG/Nonematched_users=None
-
-        if(receive.substr(0,21)=='matched_users=None'){   //返回均为None
+        if (receive == "不能添加自己为好友"){
+            alert(receive);
+        }
+        else if (receive == "不能重复添加联系人"){
+            alert(receive);
+        }
+        else {
+                    if(receive.substr(0,21)=='matched_users=None'){   //返回均为None
             flag = 1;
         }
         if(receive.substr(0,22)=='matched_groups=None'&& flag == 1){
@@ -405,7 +411,9 @@
                 });
             }
         }
-        };
-    }
+
+        }
+        }
+    };
 </script>
 </html>
