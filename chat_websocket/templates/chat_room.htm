@@ -27,6 +27,12 @@
             width: 50px;
             height: 50px;
         }
+        .title_button li img:hover{
+            filter:opacity(10%);
+            width: 50px;
+            height: 50px;
+        }
+
         .message {
             flex: 1;
             height: 75vh;
@@ -140,44 +146,76 @@
         }
 
         .info{
-            width: 90%;
-            padding-top: 60px;
+            width: 100%;
+            height: 80px;
+            margin-top: 40px;
+            text-align: left;
             }
-        .info span{
-            width: 400px;
-            margin-top:50px;
-            text-align:left;
+        .info:hover{
+            width: 100%;
+            height: 80px;
+            margin-top: 40px;
+            text-align: left;
+            color: #fff;
+            background: #999;
+            }
 
+        .info span{
+            width: auto;
+            padding-top:30px;
+            padding-left: 160px;
+            text-align:left;
+            display: block;
         }
         #txt {width: 55vw}
-        .word_wrap{
-            width: 100%;
-            margin-top: 20px;
-            height: auto;
-        }
         .me-words{
-        height: 40px;
-        display: inline-block;
+            width: 80%;
+            height: auto;
+            float: right;
+            margin-top: 20px;
+            position: relative;
+            }
+        .me-span-wrap{
+            position: relative;
+            display: inline-block;
+            width: 500px;
+            float: right;
+            position: relative;
+        }
+        .me-timer{
+            margin-top: -10px;
+            margin-left: 20px;
+            color: rgb(152, 147, 147);
+            font-size:xx-small;
+            float: right;
+            display: block;
         }
         .me-words span {
 
             margin-left:20px;
+            margin-top: -14px;
             background-color: rgb(7, 148, 176);
-            border-radius: 40px;
+            border-radius: 20px;
            color:rgb(229, 225, 225) ;
             line-height: 30px;
-            padding-top: 1px;
-            padding-bottom: 1px;
-            padding-left: 8px;
-            padding-right: 8px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding-left: 18px;
+            padding-right: 18px;
             display: block;
-            float: left;
+            float: right;
+            box-sizing:content-box;
+            max-width: 500px;
+            position: relative;
+            white-space:normal;
+            word-break:break-all;
+            word-wrap:break-word;
 
 
         }
         .me-words img{
             margin-left: 0px;
-            margin-left: 10px;
+            margin-left: 20px;
             margin-top: 0px;
             display: block;
             float: left;
@@ -189,6 +227,9 @@
             border-top-right-radius: 40px;
             border-top-left-radius: 40px;
 
+        }
+        .me-br {
+            height: 0px;
         }
     </style>
 </head>
@@ -289,7 +330,6 @@
                 c_info_div.appendChild(c_info_br);
                 let last_msg_span = document.createElement("span");
                 last_msg_span.innerText = '用户发的最后一条消息';
-                c_info_div.appendChild(last_msg_span);
                 contact_li.appendChild(c_photo_div);
                 contact_li.appendChild(c_info_div);
                 numlist.push(num);
@@ -382,22 +422,50 @@
         // 将后端消息显示在日志中
         console.log(history);
         // 将后端消息显示在聊天框中
-        let words = document.createElement("div");
-        words.className = "words";
-        let avatar_inline = document.createElement("img");
-        avatar_inline.src = "/static/avatars/"+way;       // 用户头像路径
-        let span_wrap = document.createElement("div");
-        span_wrap.className = "span-wrap";
-        let timer = document.createElement("div");
-        timer.className = "timer";
-        timer.innerText = nameshow + ' ' + time;
-        let tag = document.createElement("span");
-        tag.innerText = message;     // 历史消息
-        span_wrap.appendChild(timer);
-        span_wrap.appendChild(tag);
-        words.appendChild(avatar_inline);
-        words.appendChild(span_wrap);
-        document.getElementById("message").appendChild(words);
+        if (nameshow !== "{{ username }}") {
+            let words = document.createElement("div");
+            words.className = "words";
+            let avatar_inline = document.createElement("img");
+            avatar_inline.src = "/static/avatars/"+way;       // 用户头像路径
+            let span_wrap = document.createElement("div");
+            span_wrap.className = "span-wrap";
+            let timer = document.createElement("div");
+            timer.className = "timer";
+            timer.innerText = nameshow + ' ' + time;
+            let tag = document.createElement("span");
+            tag.innerText = message;     // 历史消息
+            span_wrap.appendChild(timer);
+            span_wrap.appendChild(tag);
+            words.appendChild(avatar_inline);
+            words.appendChild(span_wrap);
+            document.getElementById("message").appendChild(words);
+            // document.getElementById("msg_end").scrollIntoView()
+            msg_div = document.getElementById("message");
+        }
+        else {
+            let words = document.createElement("div");
+            words.className = "me-words";
+            let avatar_inline = document.createElement("img");
+            avatar_inline.src = "/static/avatars/"+way;       // 用户头像路径
+            let span_wrap = document.createElement("div");
+            span_wrap.className = "me-span-wrap";
+            let timer = document.createElement("div");
+            timer.className = "me-timer";
+            timer.innerText = nameshow + ' ' + time;
+            let me_br = document.createElement("br");
+            me_br.className = "me-br";
+            let tag = document.createElement("span");
+            tag.innerText = message;     // 历史消息
+            span_wrap.appendChild(timer);
+            span_wrap.appendChild(me_br);
+            span_wrap.appendChild(tag);
+            words.appendChild(avatar_inline);
+            words.appendChild(span_wrap);
+            document.getElementById("message").appendChild(words);
+            // document.getElementById("msg_end").scrollIntoView()
+            msg_div = document.getElementById("message");
+        }
+        msg_div.scrollTop = msg_div.scrollHeight;
             }
         }
         }

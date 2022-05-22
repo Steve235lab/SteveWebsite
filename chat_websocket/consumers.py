@@ -116,16 +116,17 @@ class ChatConsumer(WebsocketConsumer):
         # 响应"new_message="类型的消息，保存新消息并广播
         elif text[:12] == 'new_message=':
             chatting_to = str(self.chatting_to)
-            async_to_sync(self.channel_layer.group_send)(chatting_to, {"type": "xx.oo", "message": message})
             new_meta = HistoryMeta(int(self.chatting_to), self.user_signed_in, text[12:])
             DATABASE.add_history(new_meta)
+            async_to_sync(self.channel_layer.group_send)(chatting_to, {"type": "xx.oo", "message": new_meta})
             # DATABASE.save_history(DATABASE.history_dict[self.chatting_to].history[-1])
 
     def xx_oo(self, event):
         broadcast = 'chat_history='
-        timestamp = int(time.mktime(time.localtime(time.time())))
-        sender = self.user_signed_in
-        content = event['message']['text'][12:]
+        meta = event['message']
+        timestamp = meta.timestamp
+        sender = meta.sender
+        content = meta.content
         avatar = DATABASE.get_user_with_username(sender).avatar
         avatar = avatar.split('/')[-1]
         broadcast += str(timestamp) + ',' + sender + ',' + content + ',' + avatar + '/None'
