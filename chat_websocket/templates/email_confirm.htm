@@ -11,7 +11,7 @@
     <p>
         验证码：<input type="text" id="confirm_code"/>
     </p>
-    <p>
+    <p id="cfm">
         <input type="button" value="验证邮箱" onclick="sendMessage();"/>
     </p>
 </body>
@@ -31,6 +31,13 @@ document.onkeydown = function(e){
         switch(event.data){
            case 'email confirmed':
               alert('邮件验证成功，你现在可以关闭此页面');
+              let jump_button = document.createElement("input");
+              jump_button.type = "button";
+              jump_button.value = "一键登录";
+              jump_button.onclick = function sign_in(){
+                  location = 'http://42.192.44.52:8000/websocket/chatroom/?username={{ username }}';
+              };
+              document.getElementById("cfm").appendChild(jump_button);
               break;
            case 'wrong confirm code':
               alert('验证码错误，请重新输入');
