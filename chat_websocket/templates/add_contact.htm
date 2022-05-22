@@ -3,27 +3,409 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Contact</title>
+    <style>
+        .title_bar {
+            width: 50%;
+            height: 20%;
+            float: left;
+        }
+        .title_button {
+            width:40%;
+            height: 20%;
+            float: right;
+
+        }
+        .title_button li {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+            float: right;
+        }
+        .title_button li img{
+            filter:opacity(60%);
+            width: 50px;
+            height: 50px;
+        }
+        .message {
+            flex: 1;
+            height: 75vh;
+            overflow-y: auto;
+            background-color: rgba(204, 209, 212, 0.41);
+            padding-top: 20px;
+            float: left;
+        }
+        .words{
+            width: 80%;
+            height: auto;
+            float: left;
+            margin-top: 20px;
+            position: relative;
+            }
+        .span-wrap{
+            position: relative;
+            display: inline-block;
+            width: 500px;
+            float: right;
+            position: relative;
+        }
+        .words span {
+
+            margin-left:20px;
+            margin-top: 0px;
+            background-color: rgb(7, 148, 176);
+            border-radius: 20px;
+           color:rgb(229, 225, 225) ;
+            line-height: 30px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+            padding-left: 18px;
+            padding-right: 18px;
+            display: block;
+            float: left;
+            box-sizing:content-box;
+            max-width: 500px;
+            position: relative;
+            white-space:normal;
+            word-break:break-all;
+            word-wrap:break-word;
+
+
+        }
+        .words img{
+            margin-left: 0px;
+            margin-left: 10px;
+            margin-top: 0px;
+            display: block;
+            float: left;
+            width:40px;
+            height:40px;
+            float: left;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            border-top-right-radius: 40px;
+            border-top-left-radius: 40px;
+
+        }
+        .aside {
+            width: 30%;
+            height: 75vh;
+            overflow-y: auto;
+            background-color: rgba(127, 134, 138, 0.41);
+            text-align: center;
+            padding-top: 20px;
+        }
+        .layout {
+            width: 100%;
+            height: 80vh;
+            display: flex;
+        }
+        .c-list{
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            height: 80vh;
+
+        }
+
+        .input_bar {
+            position: fixed;
+            right: 5vw;
+            bottom:20px;
+        }
+        li{
+            width: 100%;
+            list-style: none;
+            display:block;
+            float:left;
+
+        }
+        img{
+            margin-left: 60px;
+            margin-top: 40px;
+            width:80px;
+            height:80px;
+            float: left;
+            border-bottom-left-radius: 80px;
+            border-bottom-right-radius: 80px;
+            border-top-right-radius: 80px;
+            border-top-left-radius: 80px;
+        }
+
+        .info{
+            width: 90%;
+            padding-top: 60px;
+            }
+        .info span{
+            width: 400px;
+            margin-top:50px;
+            text-align:left;
+
+        }
+        #txt {width: 55vw}
+        .word_wrap{
+            width: 100%;
+            margin-top: 20px;
+            height: auto;
+        }
+        .me-words{
+        height: 40px;
+        display: inline-block;
+        }
+        .me-words span {
+
+            margin-left:20px;
+            background-color: rgb(7, 148, 176);
+            border-radius: 40px;
+           color:rgb(229, 225, 225) ;
+            line-height: 30px;
+            padding-top: 1px;
+            padding-bottom: 1px;
+            padding-left: 8px;
+            padding-right: 8px;
+            display: block;
+            float: left;
+
+
+        }
+        .me-words img{
+            margin-left: 0px;
+            margin-left: 10px;
+            margin-top: 0px;
+            display: block;
+            float: left;
+            width:40px;
+            height:40px;
+            float: right;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            border-top-right-radius: 40px;
+            border-top-left-radius: 40px;
+
+        }
+    </style>
 </head>
 <body>
     <div>
         要查找的用户或群组：<input type="text" id="search"/>
         <input class="inputB" type="button" value="查找" onclick="searchContact();" />
+        <aside id="contacts1">
+            <h1>联系人</h1>
+                <ul id="contacts_list1">
+                </ul>
+        </aside>
+        <aside id="contacts2">
+            <h1>群组</h1>
+                <ul id="contacts_list2">
+                </ul>
+        </aside>
     </div>
 </body>
 <script>
     // 发送websocket连接请求
     socket = new WebSocket("ws://42.192.44.52:8000/ws_add_contact/{{ username }}/"); // 使用服务器的公网IP
 
+    var message = '';
     // 发送用户输入的查找关键词
     function searchContact() {
         let search_key_words = document.getElementById("search").value;
-        let message = 'search=' + search_key_words;
+        message = 'search=' + search_key_words;
+        //message = 'search=' + '114514';
         socket.send(message);
     }
 
+    var flag = 0;  //新建联系判断
     // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
     socket.onmessage = function (event) {
-        // TODO: 接收后端返回的查找结果，生成元素供用户选择
+        //var receive = 'matched_users=username1,user_avatar1/username2,user_avatar/None'
+        //var receive = 'matched_groups=group_num1,group_name1,group_avatar1/group_num2,group_name2,group_avatar2/None'
+        var receive = event.data;
+        //alert(receive);
+        //仅使用上一句matched_users=Steve,Steve.JPG/Nonematched_users=None
+
+        if(receive.substr(0,21)=='matched_users=None'){   //返回均为None
+            flag = 1;
+        }
+        if(receive.substr(0,22)=='matched_groups=None'&& flag == 1){
+            flag = 0;
+            let search_key_words = document.getElementById("search").value;
+            if(window.confirm("未找到任何结果，是否新建群组 确定 & 取消")){
+                create = 'new_group=' + search_key_words;//添加好友所发消息
+                socket.send(create);
+                alert(create);
+            }
+        };
+
+        //alert(flag);
+        let i = 0;
+        let iname = 0;
+        var namelist = ['0'];
+        //停止循环判断
+        if(receive.substr(8,1)=='u'){
+        //列表matched_users=user1,user1.png/None
+        //matched_users=None
+
+          while(receive.substr(i,4)!='None'){
+
+            //alert(receive.substr(i,4))
+            if((receive.substr(i,1)== '='&&receive.substr(i,5)!= '=None') || receive.substr(i,1)== '/'){
+                i += 1;
+                let temp = [];
+                while(receive.substr(i,1) !=','){
+                temp += receive.substr(i,1);
+                i += 1;
+                };
+                //alert(temp);
+                //alert('tufa')
+                name = temp;
+                //alert(receive.substr(i,4));
+                i += 1;
+                temp = [];
+                while(receive.substr(i,1) !='/'){
+                temp += receive.substr(i,1);
+                i += 1;
+                };
+
+                //alert(temp);
+                let way = temp
+
+                //创建联系人<li>
+
+                let contact_li = document.createElement("li");
+                var id_str = 'li' + iname;
+                contact_li.id = id_str;  // 设定唯一标识
+
+                let c_photo_div = document.createElement("div");
+                c_photo_div.className = "c-photo";
+                let c_img = document.createElement("img");
+                c_img.src = "/static/avatars/" + way;     // 取用户头像路径放在这里
+                c_img.alt = "avatar";
+                c_img.width = 120;
+                c_img.height = 120;
+                c_photo_div.appendChild(c_img);
+                let c_info_div = document.createElement("div");
+                c_info_div.className = "info";
+                let username_span = document.createElement("span");
+                username_span.innerText = name;    // 取用户名放在这里
+                c_info_div.appendChild(username_span);
+                let c_info_br = document.createElement("br");
+                c_info_div.appendChild(c_info_br);
+                let last_msg_span = document.createElement("span");
+                //last_msg_span.innerText = '用户发的最后一条消息';
+                //c_info_div.appendChild(last_msg_span);
+                contact_li.appendChild(c_photo_div);
+                contact_li.appendChild(c_info_div);
+                namelist.push(name);
+                document.getElementById("contacts1").appendChild(contact_li);
+                iname += 1;
+
+            };
+
+            i += 1;
+          };
+        //alert('namelist');
+        let children = document.getElementById("contacts1").children;
+        for(let child of children){
+            if (child.id.length>0 && child.id.length<5){
+                child.addEventListener("click", function(){
+                i = 0;
+                while (child.id != 'li' + i){
+                i += 1;
+                };
+                temp = namelist[i+1];
+                    friend = 'add_friend=' + temp;
+                    socket.send(friend);
+                    //alert(friend)                                                               // 事件处理代码
+                });
+            }
+        }
+        };
+        //alert('dfa')
+
+
+        //停止循环判断'matched_groups=group_num1,group_name1,group_avatar1/group_num2,group_name2,group_avatar2/None'
+        if(receive.substr(8,1)=='g'){
+        var groupnumlist = ['0'];
+        //列表matched_groups=None
+          while(receive.substr(i,4)!='None'){
+            //alert(receive.substr(i,4));
+            if((receive.substr(i,1)== '='&&receive.substr(i,5)!= '=None')||receive.substr(i,1)== '/'){
+                var temp2 = [];
+                i = i + 1;
+                while(receive.substr(i,1) !=','){
+                temp2 += receive.substr(i,1);
+                i += 1;
+                };
+                groupnum = temp2;
+                //alert(temp2);
+                temp2 = [];
+                i = i + 1;
+                while(receive.substr(i,1) !=','){
+                temp2 += receive.substr(i,1);
+                i += 1;
+                };
+                groupname = temp2;
+                temp2 = [];
+                i += 1;
+                while(receive.substr(i,1) !='/'){
+                temp2 += receive.substr(i,1);
+                i += 1;
+                };
+                way= temp2
+                //alert(groupnumlist);
+                //alert(groupname);
+                //alert(way);
+                //创建联系人<li>
+
+                let contact_li1 = document.createElement("li");
+                var id_str = 'li' + iname;
+                contact_li1.id = id_str;  // 设定唯一标识
+
+                let c_photo_div = document.createElement("div");
+                c_photo_div.className = "c-photo";
+                let c_img = document.createElement("img");
+                c_img.src = "/static/avatars/" + way;     // 取用户头像路径放在这里
+                c_img.alt = "avatar";
+                c_img.width = 120;
+                c_img.height = 120;
+                c_photo_div.appendChild(c_img);
+                let c_info_div = document.createElement("div");
+                c_info_div.className = "info";
+                let username_span = document.createElement("span");
+                username_span.innerText = groupname;    // 取用户名放在这里
+                c_info_div.appendChild(username_span);
+                let c_info_br = document.createElement("br");
+                c_info_div.appendChild(c_info_br);
+                let last_msg_span = document.createElement("span");
+                //last_msg_span.innerText = '用户发的最后一条消息';
+                //c_info_div.appendChild(last_msg_span);
+                contact_li1.appendChild(c_photo_div);
+                contact_li1.appendChild(c_info_div);
+
+                groupnumlist.push(groupnum);
+                document.getElementById("contacts2").appendChild(contact_li1);
+                iname += 1;
+                //alert('赋值结束')
+            };
+            //alert(receive.substr(i,4));
+            i += 1;
+          }
+        //alert(groupnumlist);
+        let children2 = document.getElementById("contacts2").children;
+        for(let child2 of children2){
+            if (child2.id.length>0 && child2.id.length<5){
+                child2.addEventListener("click", function(){
+                i = 0;
+                while (child2.id != 'li' + i){
+                i += 1;
+                };
+                temp2 = groupnumlist[i+1];
+                    group = 'add_group=' + temp2;
+                    socket.send(group);                                                               // 事件处理代码
+                    //alert(group)
+                });
+            }
+        }
+        };
     }
 </script>
 </html>

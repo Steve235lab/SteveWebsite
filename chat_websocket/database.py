@@ -142,7 +142,7 @@ class Database:
         contacts = ''
         if len(contacts_list) > 0:
             for contact in contacts_list:
-                contacts += contact + ','
+                contacts += str(contact) + ','
             contacts = contacts[:-1]
         else:
             contacts = 'None'
@@ -156,19 +156,19 @@ class Database:
     # 群组覆盖写入
     # changed_group: Group Object
     def rewrite_group(self, changed_group):
-        members_list = changed_group.members
-        members_str = ''
-        if len(members_list) > 0:
-            for member in members_list:
-                members_str += member + ','
-            members_str = members_str[:-1]
+        re_members_list = changed_group.members
+        re_members_str = ''
+        if len(re_members_list) > 0:
+            for member in re_members_list:
+                re_members_str += member + ','
+            re_members_str = re_members_str[:-1]
         else:
-            members_str = 'None'
+            re_members_str = 'None'
         re_group_num = changed_group.group_num
         re_group_name = changed_group.group_name
         re_group_avatar = changed_group.group_avatar
-        sql = """update contacts_chat set members = ('%s'),group_num = ('%s'),group_name = ('%s'),group_avatar = ('%s')""" % (
-            members_str, re_group_num, re_group_name, re_group_avatar)
+        sql = """update contacts_chat set members = ('%s'),group_num = ('%s'),group_name = ('%s'),group_avatar = ('%s') where group_num = ('%s')""" % (
+            re_members_str, re_group_num, re_group_name, re_group_avatar,re_group_num)
         self.cursor.execute(sql)
         self.conn.commit()
 

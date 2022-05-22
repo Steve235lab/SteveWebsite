@@ -284,16 +284,20 @@ class CfmEmlConsumer(WebsocketConsumer):
         raise StopConsumer()
 
 
+# 添加联系人
 class AddContactConsumer(WebsocketConsumer):
+    user_signed_in = ''
 
     def websocket_connect(self, message):
         # 接收客户端发送的websocket连接请求，与客户端握手创建连接
         self.accept()
+        self.user_signed_in = self.scope['url_route']['kwargs'].get("username")
         print("Add Contact Connected")
 
     def websocket_receive(self, message):
-        username = self.scope['url_route']['kwargs'].get("username")
+        username = self.user_signed_in
         text = message['text']
+        print(text)
         cmd_key = text.split('=')[0]
         if cmd_key == 'search':     # 处理"search=..."消息
             user_input = text.split('=')[-1]
@@ -313,50 +317,59 @@ class AddContactConsumer(WebsocketConsumer):
                         self.send(matched_groups_str)
                         self.send_matched_user(user_input)
                         return None
-                else:   # 未找到组
-                    matched_groups_str = 'matched_groups=None'
-                    self.send(matched_groups_str)
+                else:   # 未通过组号找到组
                     self.send_matched_user(user_input)
+                    self.send_name_matched_group(user_input)
                     return None
             except:     # 用户使用用户名或组名进行搜索
                 self.send_matched_user(user_input)
                 self.send_name_matched_group(user_input)
+                return None
         if cmd_key == 'add_friend':     # 当前登录的用户添加另一名用户为好友
             friend_name = text.split('=')[-1]
             if len(DATABASE.group_list) > 0:
                 new_group_num = int(DATABASE.group_list[-1].group_num) + 1
             else:
                 new_group_num = 0
-            new_group = Group([username, friend_name], new_group_num)
-            DATABASE.add_group(new_group)
-            host = DATABASE.get_user_with_username(username)
-            host.contacts.append(new_group_num)
-            host_index = DATABASE.get_user_index(username)
-            DATABASE.user_list[host_index] = host
-            DATABASE.rewrite_user(host)
-            friend = DATABASE.get_user_with_username(friend_name)
-            friend.contacts.append(new_group_num)
-            friend_index = DATABASE.get_user_index(friend_name)
-            DATABASE.user_list[friend_index] = friend
-            DATABASE.rewrite_user(friend)
-            print("add friend success")
+            group_name = username + '、' + friend_name
+            group_name2 = friend_name + '、' + username
+            if self.search_name_matched_group(group_name) == 0 and self.search_name_matched_group(group_name2) == 0:
+                new_group = Group([username, friend_name], new_group_num, group_name)
+                DATABASE.add_group(new_group)
+                host = DATABASE.get_user_with_username(username)
+                host.contacts.append(new_group_num)
+                host_index = DATABASE.get_user_index(username)
+                DATABASE.user_list[host_index] = host
+                DATABASE.rewrite_user(host)
+                friend = DATABASE.get_user_with_username(friend_name)
+                friend.contacts.append(new_group_num)
+                friend_index = DATABASE.get_user_index(friend_name)
+                DATABASE.user_list[friend_index] = friend
+                DATABASE.rewrite_user(friend)
+                print("add friend success")
+            else:
+                print("不可重复添加好友")
         if cmd_key == 'add_group':      # 当前登录的用户加入一个已经存在的群聊
-            group_num = int(text.split('=')[-1])
-            group = DATABASE.get_group_with_group_num(group_num)
-            group.add_member(username)
-            DATABASE.rewrite_group(group)
-            host = DATABASE.get_user_with_username(username)
-            host.contacts.append(new_group_num)
-            host_index = DATABASE.get_user_index(username)
-            DATABASE.user_list[host_index] = host
-            DATABASE.rewrite_user(host)
+            try:
+                group_num = int(text.split('=')[-1])
+                group = DATABASE.get_group_with_group_num(group_num)
+                print("host = ", username)
+                group.add_member(username)
+                DATABASE.rewrite_group(group)
+                host = DATABASE.get_user_with_username(username)
+                host.contacts.append(group_num)
+                host_index = DATABASE.get_user_index(username)
+                DATABASE.user_list[host_index] = host
+                DATABASE.rewrite_user(host)
+            except:
+                pass
         if cmd_key == 'new_group':      # 当前登录的用户创建一个新的群聊
             group_name = text.split('=')[-1]
             if len(DATABASE.group_list) > 0:
                 new_group_num = int(DATABASE.group_list[-1].group_num) + 1
             else:
                 new_group_num = 0
-            new_group = Group([username], new_group_num)
+            new_group = Group([username], new_group_num, group_name)
             DATABASE.add_group(new_group)
             user = DATABASE.get_user_with_username(username)
             user.contacts.append(new_group_num)
@@ -375,15 +388,28 @@ class AddContactConsumer(WebsocketConsumer):
 
     def send_name_matched_group(self, group_name):
         if group_name.find('、') == -1:      # 非私聊组
+            print("正在使用组名查找非私聊组")
             matched_groups_str = 'matched_groups='
             for group in DATABASE.group_list:
                 if group_name == group.group_name:
+                    print("使用组名查找成功")
                     matched_groups_str += str(group.group_num) + ','
                     matched_groups_str += group_name + ','
                     matched_groups_str += group.group_avatar.split('/')[-1] + '/'
+                    break
             matched_groups_str += 'None'
         else:   # 私聊组返回未找到
             matched_groups_str = 'matched_groups=None'
         self.send(matched_groups_str)
+        print("已发送：", matched_groups_str)
+
+    def search_name_matched_group(self, group_name):
+        matched_flag = 0
+        for group in DATABASE.group_list:
+            if group_name == group.group_name:
+                matched_flag = 1
+                break
+
+        return matched_flag
 
 

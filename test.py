@@ -1,7 +1,7 @@
 from chat_websocket.database import User, Group, Database, ChatHistory, HistoryMeta, DATABASE
 
 #
-# g_2 = Group(members= ['1', '2'], group_num = 12345, group_name='g_1', group_avatar='')
+g_2 = Group(members= ['1', '2'], group_num = 12612, group_name='g_1', group_avatar='')
 #
 # new_user = User(username='小z', password='114514', avatar='../static/avatars/A1.JPG', contacts=['110'],invitations=[], email='email.com', confirmed='no', confirm_code='None')
 user1 = User(username='user1', password='321', avatar='../static/avatars/A1.JPG', contacts=[75, 76], invitations=[], email='haha',
@@ -14,7 +14,7 @@ group_private = Group(members=['user1', 'user2'], group_num=75, group_name='user
 group_public = Group(members=['user1', 'user2', 'user3'], group_num=76, group_name='三人群聊测试', group_avatar='../static/avatars/QQ.jpg')
 # history_75 = ChatHistory(75)
 # history_76 = ChatHistory(76)
-
+DATABASE.rewrite_group(g_2)
 # DATABASE.add_user(user1)
 # DATABASE.add_user(user2)
 # DATABASE.add_user(user3)

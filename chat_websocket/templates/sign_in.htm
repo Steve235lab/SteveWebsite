@@ -78,7 +78,7 @@
 			<img src="favicon.png" width="100%" height="100px" alt=""  id="picture">
 		</div-->
         <form name="login">
-            <div style="text-align: center;">
+            <center>
             <div>
             <h2 style="color:rgb(29, 29, 29);font-size: 36px; padding-left: 45px;">
                 登录
@@ -96,7 +96,7 @@
 				没有账号？<a href="../sign_up/" >请注册</a>
 			</p>
             </div>
-            </div>
+            </center>
         </form>
     </body>
 <script type="text/javascript" src="/static/md5.js"></script>
@@ -108,22 +108,22 @@ document.onkeydown = function(e){
         }
     }
 
-    var username = '';
 
     // 发送websocket连接请求
     socket = new WebSocket("ws://42.192.44.52:8000/ws_sign_in/"); // 使用服务器的公网IP
 
     // 后端主动断开连接时触发
     socket.onclose = function (event) {
-        alert("已断开与服务器的WebSocket会话")
+        //alert("已断开与服务器的WebSocket会话")
     }
 
     // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
     socket.onmessage = function (event) {
         switch(event.data){
            case 'OK':
-              location = 'http://42.192.44.52:8000/websocket/chatroom/?username=' + username;
-              break;
+               let username = document.getElementById("name").value;
+               location = 'http://42.192.44.52:8000/websocket/chatroom/?username=' + username;
+               break;
            case 'unregistered user':
               document.getElementById('name').style.color=!this.c?this.c='red':this.c='';
               document.getElementById('password').style.color=!this.c?this.c='red':this.c='';
