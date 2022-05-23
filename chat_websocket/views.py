@@ -1,5 +1,7 @@
 from django.shortcuts import render, HttpResponse
 from .database import DATABASE
+import time
+import json
 
 
 def sign_in(request):
@@ -18,11 +20,29 @@ def email_confirm(request):
 
 def chat_room(request):
     # http://42.192.44.52/websocket/chatroom/?username=Steve
-    username = request.GET.get('username')
-    if username in DATABASE.users_signed_in:
-        return render(request, 'chat_room.htm', {"username": username})
-    else:
-        return render(request, 'session_expired.htm', {"username": username})
+    if request.method == 'GET':
+        username = request.GET.get('username')
+        if username in DATABASE.users_signed_in:
+            return render(request, 'chat_room.htm', {"username": username})
+        else:
+            return render(request, 'session_expired.htm', {"username": username})
+    if request.method == 'POST':
+        img = request.FILES.get('files')
+        username = request.GET.get('username')
+        if img is not None:
+            print("saving IMG")
+            file_name = img.name
+            suffix_name = file_name.split('.')[-1]
+            timestamp = int(time.mktime(time.localtime(time.time())))
+            chat_img_path = './static/chat_img/' + username + '_' + str(timestamp) + '.' + suffix_name      # './static/chat_img/Steve_114514.jpg'
+            DATABASE.unsaved_img[username].append(username + '_' + str(timestamp) + '.' + suffix_name)
+            f = open(chat_img_path, 'wb')
+            f.close()
+            with open(chat_img_path, 'wb') as img_file:
+                for part in img.chunks():
+                    img_file.write(part)
+                    img_file.flush()
+        return HttpResponse("ok")
 
 
 def update_info(request):
@@ -33,7 +53,7 @@ def update_info(request):
         avatar = user.avatar.split('/')[-1]
         return render(request, 'update_info.htm', {"username": username, 'email': email, 'avatar': avatar})
     if request.method == 'POST':
-        img = request.FILES.get('photo')
+        img = request.GET.get()
         username = request.GET.get('username')
         email = request.POST.get('email')
         if img is not None:

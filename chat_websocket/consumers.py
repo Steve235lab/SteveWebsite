@@ -123,6 +123,19 @@ class ChatConsumer(WebsocketConsumer):
             DATABASE.add_history(new_meta)
             async_to_sync(self.channel_layer.group_send)(chatting_to, {"type": "xx.oo", "message": new_meta})
             # DATABASE.save_history(DATABASE.history_dict[self.chatting_to].history[-1])
+        elif text == 'new_image':
+            chatting_to = str(self.chatting_to)
+            saved_flag = 0
+            while saved_flag == 0:
+                unsaved_img = DATABASE.unsaved_img[self.user_signed_in]
+                if len(unsaved_img) > 0:
+                    img_name = unsaved_img[-1]
+                    content = 'new_image=' + img_name
+                    new_meta = HistoryMeta(int(chatting_to), self.user_signed_in, content)
+                    DATABASE.add_history(new_meta)
+                    saved_flag = 1
+                    DATABASE.unsaved_img[self.user_signed_in] = []
+                    async_to_sync(self.channel_layer.group_send)(chatting_to, {"type": "xx.oo", "message": new_meta})
 
     def xx_oo(self, event):
         broadcast = 'chat_history='

@@ -13,6 +13,7 @@ class Database:
     group_list = []
     users_signed_in = []
     history_dict = {}
+    unsaved_img = {}
 
     # 读取数据文件初始化
     def __init__(self):
@@ -35,6 +36,7 @@ class Database:
             origin_users = User(username=username, password=password, avatar=avatar, email=email, confirmed=confirmed,
                                 confirm_code=confirm_code, contacts=contacts, invitations='')
             self.user_list.append(origin_users)
+            self.unsaved_img[username] = []
         sql2 = """select * from contacts_chat"""
         self.cursor.execute(sql2)
         groups = self.cursor.fetchall()
@@ -118,6 +120,7 @@ class Database:
     # new_user: User Object
     def add_user(self, new_user):
         self.user_list.append(new_user)
+        self.unsaved_img[new_user.username] = []
         self.save_user(new_user)
 
     # 查找指定用户在用户列表中的序号

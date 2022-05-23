@@ -126,6 +126,10 @@
             right: 5vw;
             bottom:20px;
         }
+        .input_bar form {
+            float: left;
+            margin-right: 150px;
+        }
         li{
             width: 100%;
             list-style: none;
@@ -231,6 +235,23 @@
         .me-br {
             height: 0px;
         }
+        .me-span-wrap img{
+            width: 200px;
+            height: auto;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border-top-right-radius: 10px;
+            border-top-left-radius: 10px;
+        }
+        .span-wrap img{
+            width: 200px;
+            height: auto;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border-top-right-radius: 10px;
+            border-top-left-radius: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -251,11 +272,20 @@
         <div class="message" id="message">
         </div>
         <div class="input_bar">
+{#        <form action="/websocket/chatroom/?username={{ username }}" method="POST" enctype="multipart/form-data">#}
+{#            <input name="photo" type="file" id="exampleInputFile">#}
+{#            <button id="photo" class="btn btn-danger" type="submit" onclick="sendImg();">发送图片</button>#}
+{#        </form>#}
+         <form id="frm">
+            <input type="file" name="file1" id="file1" value="选择图片" />
+            <input type="button" value="发送图片" id="upload">
+        </form>
         <input type="text" placeholder="请输入" id="txt">
         <input type="button" value="发送" onclick="sendMessage();">
         </div>
     </div>
 </body>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
     // 发送websocket连接请求
     socket = new WebSocket("ws://42.192.44.52:8000/ws_chat_room/{{ username }}/"); // 使用服务器的公网IP
@@ -267,7 +297,6 @@
     }
 
 
- // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
  // 接收来自服务端的消息，当收到来自服务端的消息时自动触发
     socket.onmessage = function (event) {
         var receive = event.data;
@@ -403,6 +432,7 @@
                     }
                 }
                 message = temp+history.substr(i,1);
+                var timestamp = time;
                 time = myDate(time);
                 temp = [];
                 i += 2;
@@ -432,8 +462,21 @@
             let timer = document.createElement("div");
             timer.className = "timer";
             timer.innerText = nameshow + ' ' + time;
-            let tag = document.createElement("span");
-            tag.innerText = message;     // 历史消息
+            // alert(message.substring(0, 9));
+            let tag;
+            if (message.substring(0, 9) == 'new_image'){
+                tag = document.createElement("img");
+                var suffix_name = message.substring(message.indexOf(".")+1, );
+                var img_name = nameshow + "_" + timestamp + "." + suffix_name;
+                //alert(timestamp);
+                tag.src = "/static/chat_img/" + img_name;
+                tag.className = "chat_img";
+                tag.alt = message.substring(9);
+            }
+            else {
+                tag = document.createElement("span");
+                tag.innerText = message;     // 历史消息
+            }
             span_wrap.appendChild(timer);
             span_wrap.appendChild(tag);
             words.appendChild(avatar_inline);
@@ -454,8 +497,19 @@
             timer.innerText = nameshow + ' ' + time;
             let me_br = document.createElement("br");
             me_br.className = "me-br";
-            let tag = document.createElement("span");
-            tag.innerText = message;     // 历史消息
+            let tag;
+            if (message.substring(0, 9) == 'new_image'){
+                tag = document.createElement("img");
+                var suffix_name = message.substring(message.indexOf(".")+1, );
+                var img_name = nameshow + "_" + timestamp + "." + suffix_name;
+                tag.src = "/static/chat_img/" + img_name;
+                tag.className = "chat_img";
+                tag.alt = message.substring(9);
+            }
+            else {
+                tag = document.createElement("span");
+                tag.innerText = message;     // 历史消息
+            }
             span_wrap.appendChild(timer);
             span_wrap.appendChild(me_br);
             span_wrap.appendChild(tag);
@@ -513,6 +567,21 @@
         message.value=[];
     }
 
+    $("#upload").click(function(){
+const form_data = new FormData();
+    form_data.append('files',$('#file1')[0].files[0]);
+    $.ajax({
+        url:'?username={{ username }}',
+        type:'post',
+        contentType:false,
+        processData:false,
+        data:form_data,
+        success: function(callback) {
+            //alert('上传完成!')
+        }
+    });
+        socket.send("new_image");
+    });
     // 客户端主动断开websocket连接
     function shutWSDown() {
         socket.close();
