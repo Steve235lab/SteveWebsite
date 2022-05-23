@@ -19,7 +19,8 @@ def email_confirm(request):
 def chat_room(request):
     # http://42.192.44.52/websocket/chatroom/?username=Steve
     username = request.GET.get('username')
-    return render(request, 'chat_room.htm', {"username": username})
+    if username in DATABASE.users_signed_in:
+        return render(request, 'chat_room.htm', {"username": username})
 
 
 def update_info(request):

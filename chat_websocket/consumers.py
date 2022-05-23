@@ -139,7 +139,10 @@ class ChatConsumer(WebsocketConsumer):
         print("与客户端断开连接")
         username = self.scope['url_route']['kwargs'].get("username")
         # 将用户从组中移除
-        async_to_sync(self.channel_layer.group_discard)(int(self.chatting_to), self.channel_name)
+        try:
+            async_to_sync(self.channel_layer.group_discard)(int(self.chatting_to), self.channel_name)
+        except:
+            pass
         # 将用户从已登录用户列表中移除
         try:
             DATABASE.users_signed_in.remove(username)
