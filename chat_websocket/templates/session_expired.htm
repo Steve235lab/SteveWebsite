@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <title>Session Expired</title>
+</head>
+<body>
+    <h3>用户{{ username }}未登录或聊天室WebSocket会话已过期，请重新登录！</h3>
+    <br>
+    <input type="button" value="去登录" onclick="location = 'http://42.192.44.52:8000/websocket/sign_in/';"/>
+</body>
+</html>

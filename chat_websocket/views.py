@@ -21,6 +21,8 @@ def chat_room(request):
     username = request.GET.get('username')
     if username in DATABASE.users_signed_in:
         return render(request, 'chat_room.htm', {"username": username})
+    else:
+        return render(request, 'session_expired.htm', {"username": username})
 
 
 def update_info(request):
