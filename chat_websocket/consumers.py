@@ -17,21 +17,24 @@ class ChatConsumer(WebsocketConsumer):
     user_signed_in = ''
 
     def websocket_connect(self, message):
-        # 接收客户端发送的websocket连接请求，与客户端握手创建连接
-        self.accept()
         # 获取username
         username = self.scope['url_route']['kwargs'].get("username")
-        self.user_signed_in = username
-        # group_add(组号, 为新连接用户生成的组内代号)
-        # async_to_sync(self.channel_layer.group_add)(group_num, self.channel_name)
-        # 向客户端发送用户名以及联系人列表
-        self.send("username=" + username)
-        self.send_contacts(username)
-        print("已向客户端发送 " + username + ' 的联系人列表')
-        # print(self.chatting_to)
-        if self.chatting_to != 'None' and self.chatting_to is not None:
-            self.send_chat_history()
-            print("已向客户端发送 " + str(self.chatting_to) + ' 的聊天记录')
+        # 接收客户端发送的websocket连接请求，通过已登录用户表验证用户登录身份，若已登录，与客户端握手创建连接
+        if username in DATABASE.users_signed_in:
+            self.accept()
+            self.user_signed_in = username
+            # group_add(组号, 为新连接用户生成的组内代号)
+            # async_to_sync(self.channel_layer.group_add)(group_num, self.channel_name)
+            # 向客户端发送用户名以及联系人列表
+            self.send("username=" + username)
+            self.send_contacts(username)
+            print("已向客户端发送 " + username + ' 的联系人列表')
+            # print(self.chatting_to)
+            if self.chatting_to != 'None' and self.chatting_to is not None:
+                self.send_chat_history()
+                print("已向客户端发送 " + str(self.chatting_to) + ' 的聊天记录')
+        else:       # 拒绝与未登录的用户握手
+            self.close()
 
     # 向前端发送联系人列表（实际上是以/分割的字符串）
     def send_contacts(self, username):
@@ -136,7 +139,12 @@ class ChatConsumer(WebsocketConsumer):
         print("与客户端断开连接")
         username = self.scope['url_route']['kwargs'].get("username")
         # 将用户从组中移除
-        # async_to_sync(self.channel_layer.group_discard)(group_num, self.channel_name)
+        async_to_sync(self.channel_layer.group_discard)(int(self.chatting_to), self.channel_name)
+        # 将用户从已登录用户列表中移除
+        try:
+            DATABASE.users_signed_in.remove(username)
+        except:
+            pass
         raise StopConsumer()
 
 
@@ -243,6 +251,8 @@ class SignInConsumer(WebsocketConsumer):
         elif db_password == password:
             self.send("OK")
             print("用户" + username + "登陆成功")
+            # 将用户添加至已登录用户名单
+            DATABASE.users_signed_in.append(username)
             self.close()
             print("Sign In Disconnected")
         # 密码错误
@@ -276,6 +286,7 @@ class CfmEmlConsumer(WebsocketConsumer):
             DATABASE.user_list[user_index].confirmed = 'yes'
             DATABASE.rewrite_user(DATABASE.user_list[user_index])
             print("用户" + username + "邮箱验证成功")
+            DATABASE.users_signed_in.append(username)
             self.send("email confirmed")
             self.close()
             print("Confirm Email Disconnected")

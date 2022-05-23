@@ -11,6 +11,7 @@ from pymysql import connect
 class Database:
     user_list = []
     group_list = []
+    users_signed_in = []
     history_dict = {}
 
     # 读取数据文件初始化
