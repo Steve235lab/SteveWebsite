@@ -36,7 +36,7 @@ Written on 2022/5/10 by Steve D. J.
     (3) 服务器接收到new_message，获取当前时间戳，将其打包添加至chat_history，然后：
         ***使用async_to_sync(self.channel_layer.group_send)(group_num, {"type": "xx.oo", "message": new_message})广播方法将该消息进行广播***
         其中xx_oo()方法向前端广播的消息格式为：
-            new_msg_broadcast=timestamp,sender,content,avatar
+            chat_history=timestamp,sender,content,avatar
 
 3. websocket会话断开
     前端关闭网页自动断开，后端不会主动执行断开命令。
