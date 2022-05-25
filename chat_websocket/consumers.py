@@ -158,7 +158,8 @@ class ChatConsumer(WebsocketConsumer):
             pass
         # 将用户从已登录用户列表中移除
         try:
-            DATABASE.users_signed_in.remove(username)
+            while username in DATABASE.users_signed_in:
+                DATABASE.users_signed_in.remove(username)
         except:
             pass
         raise StopConsumer()
@@ -323,6 +324,8 @@ class AddContactConsumer(WebsocketConsumer):
         # 接收客户端发送的websocket连接请求，与客户端握手创建连接
         self.accept()
         self.user_signed_in = self.scope['url_route']['kwargs'].get("username")
+        # 将用户添加至已登录用户名单
+        DATABASE.users_signed_in.append(self.user_signed_in)
         print("Add Contact Connected")
 
     def websocket_receive(self, message):

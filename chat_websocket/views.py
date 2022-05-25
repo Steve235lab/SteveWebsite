@@ -51,6 +51,7 @@ def update_info(request):
         user = DATABASE.get_user_with_username(username)
         email = user.email
         avatar = user.avatar.split('/')[-1]
+        DATABASE.users_signed_in.append(username)
         return render(request, 'update_info.htm', {"username": username, 'email': email, 'avatar': avatar})
     if request.method == 'POST':
         img = request.GET.get()
