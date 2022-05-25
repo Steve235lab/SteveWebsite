@@ -158,8 +158,7 @@ class ChatConsumer(WebsocketConsumer):
             pass
         # 将用户从已登录用户列表中移除
         try:
-            while username in DATABASE.users_signed_in:
-                DATABASE.users_signed_in.remove(username)
+            DATABASE.users_signed_in.remove(username)
         except:
             pass
         raise StopConsumer()
