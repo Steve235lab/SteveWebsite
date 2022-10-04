@@ -27,4 +27,5 @@ urlpatterns = [
     # path(r'^favicon.ico$', RedirectView.as_view(url=r'static/favicon.ico')),
     path('try_pyscript/', include('try_pyscript.urls')),
     path('markdown_reader/', include('markdown_reader.urls')),
+    path('video_player/', include('video_player.urls')),
 ]

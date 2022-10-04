@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'channels',
     'try_pyscript.apps.TryPyscriptConfig',
     'markdown_reader.apps.MarkdownReaderConfig',
+    'video_player.apps.VideoPlayerConfig',
 ]
 
 MIDDLEWARE = [
