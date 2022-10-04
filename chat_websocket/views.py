@@ -54,7 +54,7 @@ def update_info(request):
         DATABASE.users_signed_in.append(username)
         return render(request, 'update_info.htm', {"username": username, 'email': email, 'avatar': avatar})
     if request.method == 'POST':
-        img = request.GET.get()
+        img = request.FILES.get('photo')
         username = request.GET.get('username')
         email = request.POST.get('email')
         if img is not None:

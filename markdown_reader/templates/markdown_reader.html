@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <title>Homework 1</title>
+    <style>
+        pre,code {
+            display: block;
+            background: none repeat scroll 0 0;
+            background-color: #555555;
+            clear: both;
+            font-family: 'Consolas','Courier','Monaco',monospace;
+            color: #fff;
+            /*background-color: #f8f8f8;*/
+            margin: 5px 0px;
+            overflow: auto;
+            padding: 10px;
+            white-space: pre;
+            /*text-indent: 1em;*/
+        }
+    </style>
+</head>
+<body>
+<h1>homework_1</h1>
+<h3>2022.9</h3>
+<h3>王义成 19122330</h3>
+<h2>1. 安装 pyhanlp</h2>
+<p><img src="/static/md/res/install_pyhanlp.png" alt="" width="640"/></p>
+<h2>2. 编写正向、逆向、双向匹配算法，对比测试结果</h2>
+<p><img src="/static/md/res/segment_flowchart.png" alt="来源：课程PPT" title="切分算法流程图" width="640"/></p>
+<h3>2.1 词典加载</h3>
+<p>参考课本配套的源代码，如下：</p>
+<pre><code class="language-python">from pyhanlp import *
+
+
+def load_dictionary():
+    &quot;&quot;&quot;
+    加载HanLP中的mini词库
+    :return: 一个set形式的词库
+    &quot;&quot;&quot;
+    IOUtil = JClass('com.hankcs.hanlp.corpus.io.IOUtil')
+    path = HanLP.Config.CoreDictionaryPath.replace('.txt', '.mini.txt')
+    dic = IOUtil.loadDictionary([path])
+    return set(dic.keySet())
+</code></pre>
+<h3>2.2 正向匹配算法</h3>
+<ul>
+<li>代码实现</li>
+</ul>
+<pre><code class="language-python">def forward_segment(text, dic):
+    words = []
+    i = 0
+    while i &lt; len(text):
+        longest_word = text[i]
+        for j in range(i + 1, len(text) + 1):
+            word_cache = text[i:j]
+            if word_cache in dic:
+                longest_word = word_cache
+        words.append(longest_word)
+        i += len(longest_word)
+
+    return words
+</code></pre>
+<ul>
+<li>运行结果</li>
+</ul>
+<pre><code>['项目', '的', '研究']
+['商品', '和服', '务']
+['研究生', '命', '起源']
+['当下', '雨天', '地面', '积水']
+['结婚', '的', '和尚', '未', '结婚', '的']
+['欢迎', '新', '老师', '生前', '来', '就餐']
+</code></pre>
+<p>通过对切分结果的分析可以看出，正向匹配算法的正确率仅有 1/6，仅有 '项目的研究' 一段文本切分正确，切分效果不理想。</p>
+<h3>2.3 逆向匹配算法</h3>
+<ul>
+<li>代码实现</li>
+</ul>
+<pre><code class="language-python">def backward_segment(text, dic):
+    words = []
+    i = len(text) - 1
+    while i &gt;= 0:
+        longest_word = text[i]
+        for j in range(0, i):
+            word_cache = text[j: i + 1]
+            if word_cache in dic:
+                longest_word = word_cache
+        words.append(longest_word)
+        i -= len(longest_word)
+    words.reverse()
+
+    return words
+</code></pre>
+<ul>
+<li>运行结果</li>
+</ul>
+<pre><code>['项', '目的', '研究']
+['商品', '和', '服务']
+['研究', '生命', '起源']
+['当下', '雨天', '地面', '积水']
+['结婚', '的', '和', '尚未', '结婚', '的']
+['欢', '迎新', '老', '师生', '前来', '就餐']
+</code></pre>
+<p>与课件对比可以发现，'当下雨天地面积水' 一段的切分结果与课件中的有出入，并非是代码中出现错误，而是我使用的mini词典中并未收录”下雨天“一词，自然无法正确匹配。</p>
+<p>通过对切分结果的分析可以看出，逆向匹配算法的正确率为 1/2，在测试数据集上的表现优于正向匹配，但仍然不够理想。</p>
+<h3>2.4 双向匹配算法</h3>
+<ul>
+<li>代码实现</li>
+</ul>
+<pre><code class="language-python">def count_single_char(words):  # 统计单字成词的个数
+    num = 0
+    for word in words:
+        if len(word) == 1:
+            num += 1
+
+    return num
+
+
+def bidirectional_segment(text, dic):
+    f = forward_segment(text, dic)
+    b = backward_segment(text, dic)
+    if len(f) &lt; len(b):                                  # 词数更少优先级更高
+        return f
+    elif len(f) &gt; len(b):
+        return b
+    else:
+        if count_single_char(f) &lt; count_single_char(b):  # 单字更少优先级更高
+            return f
+        else:
+            return b                                     # 都相等时逆向匹配优先级更高
+</code></pre>
+<ul>
+<li>运行结果</li>
+</ul>
+<pre><code>['项', '目的', '研究']
+['商品', '和', '服务']
+['研究', '生命', '起源']
+['当下', '雨天', '地面', '积水']
+['结婚', '的', '和', '尚未', '结婚', '的']
+['欢', '迎新', '老', '师生', '前来', '就餐']
+</code></pre>
+<p>通过对切分结果的分析可以看出，双向匹配算法的正确率为 1/2，未能达到预期中结合正向、逆向两种算法优点的效果。</p>
+<h3>2.5 速度对比</h3>
+<p><img src="/static/md/res/benchmark.png" alt="" width="640"/></p>
+<p>从上图可知，正向、逆向匹配算法的运行速度相当，均快于双向匹配算法，大约是双向匹配算法的两倍。</p></body>
+</html>

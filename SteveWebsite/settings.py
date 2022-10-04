@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'chat_websocket.apps.ChatWebsocketConfig',
     'channels',
     'try_pyscript.apps.TryPyscriptConfig',
+    'markdown_reader.apps.MarkdownReaderConfig',
 ]
 
 MIDDLEWARE = [

@@ -186,12 +186,12 @@ class SignUpConsumer(WebsocketConsumer):
                 print("用户邮箱" + email + "已通过检查")
                 self.send("OK")
                 # 构造新用户对象
-                user = User(username=username, password=password, avatar='../static/avatars/Judy.JPG', contacts=[2],
+                user = User(username=username, password=password, avatar='../static/avatars/Judy.JPG', contacts=[0],
                             invitations=[], email=email, confirmed='no', confirm_code='None')
                 # 将新用户保存到数据库
                 DATABASE.add_user(user)
                 # 向“公共大厅”中添加新用户
-                public_chat = DATABASE.get_group_with_group_num(2)
+                public_chat = DATABASE.get_group_with_group_num(0)
                 public_chat.add_member(username)
                 DATABASE.rewrite_group(public_chat)
                 # 发送验证邮件
