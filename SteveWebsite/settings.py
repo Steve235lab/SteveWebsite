@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'try_pyscript.apps.TryPyscriptConfig',
     'markdown_reader.apps.MarkdownReaderConfig',
     'video_player.apps.VideoPlayerConfig',
+    'speech_compressor.apps.SpeechCompressorConfig',
 ]
 
 MIDDLEWARE = [

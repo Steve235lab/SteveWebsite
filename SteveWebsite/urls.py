@@ -28,4 +28,5 @@ urlpatterns = [
     path('try_pyscript/', include('try_pyscript.urls')),
     path('markdown_reader/', include('markdown_reader.urls')),
     path('video_player/', include('video_player.urls')),
+    path('speech_compressor/', include('speech_compressor.urls')),
 ]
